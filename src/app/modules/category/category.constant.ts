@@ -1,2 +1,2 @@
 
-export const categorySearchableFields = ["storageName"];
+export const categorySearchableFields = ["categoryName"];

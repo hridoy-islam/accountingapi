@@ -2,8 +2,8 @@
 import express from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { transactionValidation } from "./category.validation";
-import { transactionControllers } from "./category.controller";
+import { categoryValidation } from "./category.validation";
+import { categoryControllers } from "./category.controller";
 
 
 const router = express.Router();
@@ -12,33 +12,33 @@ const router = express.Router();
 router.post(
   "/",
   // auth('admin'),
-  validateRequest(transactionValidation.transactionSchema),
-  transactionControllers.transactionCreate
+  validateRequest(categoryValidation.categorySchema),
+  categoryControllers.categoryCreate
 );
 
 router.delete(
   "/:id",
   // auth('admin'),
-  validateRequest(transactionValidation.transactionSchema),
-  transactionControllers.transactionDelete
+  validateRequest(categoryValidation.categorySchema),
+  categoryControllers.categoryDelete
 );
 
 router.patch(
   "/:id",
   // auth("admin", "user"),
-  transactionControllers.transactionUpdate
+  categoryControllers.categoryUpdate
 );
 
 router.get(
   "/",
   // auth("admin", "user"),
-  transactionControllers.getAlltransactions
+  categoryControllers.getAllCategorys
 );
 
 router.get(
   "/:id",
   // auth('admin'),
-  transactionControllers.getOnetransaction
+  categoryControllers.getOneCategory
 )
 
 
@@ -49,5 +49,5 @@ router.get(
 
 
 
-export const transactionRoute = router;
+export const categoryRoute = router;
 

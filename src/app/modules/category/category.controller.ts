@@ -2,12 +2,12 @@ import { RequestHandler } from "express";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
-import { categoryServices } from "./category.service";
+import { CategoryServices } from "./category.service";
 
 
 // Controller to create a new category method
 const categoryCreate = catchAsync(async (req, res) => {
-  const result = await categoryServices.createcategoryIntoDB(req.body);
+  const result = await CategoryServices.createCategoryIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -19,7 +19,7 @@ const categoryCreate = catchAsync(async (req, res) => {
 // Controller to delete a category method by ID
 const categoryDelete = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await categoryServices.deletecategoryFromDB(id);
+  const result = await CategoryServices.deleteCategoryFromDB(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -31,7 +31,7 @@ const categoryDelete = catchAsync(async (req, res) => {
 // Controller to update a category method by ID
 const categoryUpdate = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await categoryServices.updatecategoryInDB(id, req.body);
+  const result = await CategoryServices.updateCategoryInDB(id, req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -41,8 +41,8 @@ const categoryUpdate = catchAsync(async (req, res) => {
 });
 
 // Controller to retrieve all category methods from the database
-const getAllcategorys = catchAsync(async (req, res) => {
-  const result = await categoryServices.getAllcategorysFromDB(req.query);
+const getAllCategorys = catchAsync(async (req, res) => {
+  const result = await CategoryServices.getAllCategorysFromDB(req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -51,9 +51,9 @@ const getAllcategorys = catchAsync(async (req, res) => {
   });
 });
 
-const getOnecategory = catchAsync(async (req, res) => {
+const getOneCategory = catchAsync(async (req, res) => {
   const { id } = req.params;
-    const result = await categoryServices.getOnecategoryFromDB(id);
+    const result = await CategoryServices.getOneCategoryFromDB(id);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
@@ -66,8 +66,8 @@ export const categoryControllers = {
   categoryCreate,
   categoryDelete,
   categoryUpdate,
-  getAllcategorys,
-  getOnecategory
+  getAllCategorys,
+  getOneCategory
 
 
  

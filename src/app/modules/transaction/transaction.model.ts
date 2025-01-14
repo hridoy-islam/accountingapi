@@ -52,7 +52,7 @@ const transactionSchema = new Schema({
   },
   transactionMethod: {
     type: Types.ObjectId,
-    ref: 'TransactionMethod',
+    ref: 'Method',
     required: true
   },
   storage: {
@@ -65,5 +65,5 @@ const transactionSchema = new Schema({
 
 
 // Apply the type at the model level
-const Transaction= mongoose.model<TTransaction & Document>('Transactions', transactionSchema);
+const Transaction= mongoose.model<TTransaction & Document>('Transaction', transactionSchema);
 export default Transaction;

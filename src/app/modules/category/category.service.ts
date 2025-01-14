@@ -1,73 +1,74 @@
 import AppError from "../../errors/AppError";
 import mongoose, { Model } from "mongoose";
 import httpStatus from "http-status";
-import { TTransaction } from "./category.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
-import { transactionSearchableFields } from "./category.constant";
 
-import Transaction from "./category.model";
 
-// Creates a new transaction  in the database after validating for duplicates
-const createTransactionIntoDB = async (payload: TTransaction) => {
+import Category from "./category.model";
+import { categorySearchableFields } from "./category.constant";
+import { TCategory } from "./category.interface";
+
+// Creates a new Category  in the database after validating for duplicates
+const createCategoryIntoDB = async (payload: TCategory) => {
   try {
-    // Check if the transaction tcid already exists
-    const existingTransaction= await Transaction.findOne({ tcid: payload.tcid });
-    if (existingTransaction) {
-      throw new AppError(httpStatus.CONFLICT, "This Transaction name already exists!");
+    // Check if the Category tcid already exists
+    const existingCategory= await Category.findOne({ categoryName: payload.categoryName });
+    if (existingCategory) {
+      throw new AppError(httpStatus.CONFLICT, "This Category name already exists!");
     }
 
-    // Create and save the transaction
-    const result = await Transaction.create(payload);
+    // Create and save the Category
+    const result = await Category.create(payload);
     return result;
   } catch (error: any) {
-    console.error("Error in createTransactionIntoDB:", error);
+    console.error("Error in createCategoryIntoDB:", error);
 
     // Throw the original error or wrap it with additional context
     if (error instanceof AppError) {
       throw error;
     }
 
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Transaction");
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Category");
   }
 };
 
 
-// Deletes a transaction Transaction from the database by ID 
-const deleteTransactionFromDB = async (payload: any) => {
+// Deletes a Category Category from the database by ID 
+const deleteCategoryFromDB = async (payload: any) => {
   try {
     // Validate the payload ID
     if (!mongoose.Types.ObjectId.isValid(payload)) {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid ID format");
     }
 
-    // Check if the Transaction exists
-    const existingTransaction = await Transaction.findById(payload);
-    if (!existingTransaction) {
-      throw new AppError(httpStatus.NOT_FOUND, "Transaction not found!");
+    // Check if the Category exists
+    const existingCategory = await Category.findById(payload);
+    if (!existingCategory) {
+      throw new AppError(httpStatus.NOT_FOUND, "Category not found!");
     }
 
-    // Delete the Transaction
-    const result = await Transaction.findByIdAndDelete(payload);
+    // Delete the Category
+    const result = await Category.findByIdAndDelete(payload);
     if (!result) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the Transaction");
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the Category");
     }
 
     return result;
   } catch (error) {
-    console.error("Error in deleteTransactionFromDB:", error);
+    console.error("Error in deleteCategoryFromDB:", error);
 
     // Re-throw the original error or wrap it with additional context
     if (error instanceof AppError) {
       throw error;
     }
 
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,  "Failed to delete Transaction");
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,  "Failed to delete Category");
   }
 };
 
-// Updates a  Transaction in the database by ID 
-const updateTransactionInDB = async (id: string, payload: Partial<TTransaction>) => {
-  const result = await Transaction.findByIdAndUpdate(id, payload, {
+// Updates a  Category in the database by ID 
+const updateCategoryInDB = async (id: string, payload: Partial<TCategory>) => {
+  const result = await Category.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
     upsert: true,
@@ -76,10 +77,10 @@ const updateTransactionInDB = async (id: string, payload: Partial<TTransaction>)
   return result;
 };
 
-// Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
-const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(Transaction.find(), query)
-    .search(transactionSearchableFields)
+// Retrieves all  Categorys from the database with support for filtering, sorting, and pagination
+const getAllCategorysFromDB = async (query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(Category.find(), query)
+    .search(categorySearchableFields)
     .filter()
     .sort()
     .paginate()
@@ -94,16 +95,16 @@ const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-// Retrieves a single  Transaction from the database by ID
-const getOneTransactionFromDB = async (id: string) => {
-  const result = await Transaction.findById(id);
+// Retrieves a single  Category from the database by ID
+const getOneCategoryFromDB = async (id: string) => {
+  const result = await Category.findById(id);
   return result;
 };
 
-export const TransactionServices = {
-  createTransactionIntoDB,
-  deleteTransactionFromDB,
-  updateTransactionInDB,
-  getAllTransactionsFromDB,
-  getOneTransactionFromDB
+export const CategoryServices = {
+  createCategoryIntoDB,
+  deleteCategoryFromDB,
+  updateCategoryInDB,
+  getAllCategorysFromDB,
+  getOneCategoryFromDB
 };

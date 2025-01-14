@@ -13,7 +13,7 @@ const createTransactionIntoDB = async (payload: TTransaction) => {
     // Check if the transaction tcid already exists
     const existingTransaction= await Transaction.findOne({ tcid: payload.tcid });
     if (existingTransaction) {
-      throw new AppError(httpStatus.CONFLICT, "This Transaction name already exists!");
+      throw new AppError(httpStatus.CONFLICT, "This Transaction already exists!");
     }
 
     // Create and save the transaction

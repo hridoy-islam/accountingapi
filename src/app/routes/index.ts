@@ -3,6 +3,8 @@ import { UserRoutes } from "../modules/user/user.route";
 import { AuthRoutes } from "../modules/auth/auth.router";
 import { storageRoute } from "../modules/stroage/storage.route";
 import { transactionMethodRoute } from "../modules/transactionMethod/transcationMethod.route";
+import { categoryRoute } from "../modules/category/category.route";
+import { transactionRoute } from "../modules/transaction/transaction.route";
 
 const router = Router();
 
@@ -23,6 +25,16 @@ const moduleRoutes = [
   {
     path: '/storages',
     route: storageRoute
+  }
+  ,
+  {
+    path: '/categories',
+    route: categoryRoute
+  }
+  ,
+  {
+    path: '/transactions',
+    route: transactionRoute
   }
 ];
 

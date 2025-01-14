@@ -1,5 +1,5 @@
-export interface TCategoty {
+export interface TCategory {
   categoryName: string; 
   categoryType: "inflow" | "outflow";
-  parentCategoryId?: number;
+  parentCategoryId?: string;
 }
