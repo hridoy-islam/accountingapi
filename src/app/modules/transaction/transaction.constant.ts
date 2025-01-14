@@ -1,2 +1,2 @@
 
-export const transactionSearchableFields = ["storageName"];
+export const transactionSearchableFields = [""];

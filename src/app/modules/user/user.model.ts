@@ -42,9 +42,18 @@ const userSchema = new Schema<TUser, UserModel>(
     phone: {
       type: String,
     },
-    ipaddress: {
+    createdBy: {
       type: String,
-    }
+      default: "admin",
+    },
+    otp: {
+      type: String,
+      default: null,
+    },
+    otpExpiry: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

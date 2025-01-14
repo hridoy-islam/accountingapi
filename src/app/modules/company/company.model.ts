@@ -1,0 +1,36 @@
+import mongoose, { Schema, Document, CallbackError, Types } from 'mongoose';
+import { TCompany} from './company.interface';
+
+
+const companySchema = new Schema({
+  companyName: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  phone: {
+    type: String,
+    required: true
+  },
+  companyAddress: {
+    type: String,
+    required: true
+  },
+  assignUser: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  logo: {
+    type: String,
+    default: null
+  }
+});
+
+
+
+// Apply the type at the model level
+const Company= mongoose.model<TCompany & Document>('Company', companySchema);
+export default Company;

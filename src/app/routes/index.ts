@@ -5,6 +5,7 @@ import { storageRoute } from "../modules/stroage/storage.route";
 import { transactionMethodRoute } from "../modules/transactionMethod/transcationMethod.route";
 import { categoryRoute } from "../modules/category/category.route";
 import { transactionRoute } from "../modules/transaction/transaction.route";
+import { companyRoute } from "../modules/company/company.route";
 
 const router = Router();
 
@@ -35,6 +36,10 @@ const moduleRoutes = [
   {
     path: '/transactions',
     route: transactionRoute
+  },
+  {
+    path: '/companies',
+    route: companyRoute
   }
 ];
 

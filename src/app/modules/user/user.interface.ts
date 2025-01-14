@@ -14,7 +14,9 @@ export interface TUser {
   authroized: boolean;
   address?: string;
   image?: string;
-  ipaddress: string;
+  createdBy?: string;
+  otp?: string;
+  otpExpiry ?: Date
 }
 
 export interface UserModel extends Model<TUser> {

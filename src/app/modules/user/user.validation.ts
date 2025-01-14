@@ -8,6 +8,12 @@ const userValidationSchema = z.object({
     })
     .max(20, { message: "Password can not be more than 20 characters" })
     .optional(),
+  otpExpiry: z
+    .string({ required_error: "Otp expiry date is required." })
+    .transform((str) => new Date(str))
+    .nullable()
+    .optional(),
+  otp: z.string().nullable().optional(),
 });
 
 const changeStatusValidationSchema = z.object({

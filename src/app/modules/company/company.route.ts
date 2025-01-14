@@ -2,8 +2,8 @@
 import express from "express";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { categoryValidation } from "./category.validation";
-import { categoryControllers } from "./category.controller";
+import { companyValidation } from "./company.validation";
+import { companyControllers } from "./company.controller";
 
 
 const router = express.Router();
@@ -12,33 +12,33 @@ const router = express.Router();
 router.post(
   "/",
   // auth('admin'),
-  validateRequest(categoryValidation.categorySchema),
-  categoryControllers.categoryCreate
+  validateRequest(companyValidation.companySchema),
+  companyControllers.companyCreate
 );
 
 router.delete(
   "/:id",
   // auth('admin'),
   // validateRequest(categoryValidation.categorySchema),
-  categoryControllers.categoryDelete
+  companyControllers.companyDelete
 );
 
 router.patch(
   "/:id",
   // auth("admin", "user"),
-  categoryControllers.categoryUpdate
+  companyControllers.companyUpdate
 );
 
 router.get(
   "/",
   // auth("admin", "user"),
-  categoryControllers.getAllCategorys
+  companyControllers.getAllcompanys
 );
 
 router.get(
   "/:id",
   // auth('admin'),
-  categoryControllers.getOneCategory
+  companyControllers.getOnecompany
 )
 
 
@@ -49,5 +49,5 @@ router.get(
 
 
 
-export const categoryRoute = router;
+export const companyRoute = router;
 

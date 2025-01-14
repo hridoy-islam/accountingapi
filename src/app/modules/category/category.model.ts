@@ -23,5 +23,5 @@ const categorySchema = new Schema({
 
 
 // Apply the type at the model level
-const Transaction= mongoose.model<TCategory & Document>('Category', categorySchema);
-export default Transaction;
+const Category= mongoose.model<TCategory & Document>('Category', categorySchema);
+export default Category;
