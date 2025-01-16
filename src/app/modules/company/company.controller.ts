@@ -62,6 +62,11 @@ const getOnecompany = catchAsync(async (req, res) => {
     })
   })
 
+
+  const assignUsersToCompany = catchAsync(async (req, res)=>{
+    
+  })
+
 export const companyControllers = {
   companyCreate,
   companyDelete,

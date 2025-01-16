@@ -10,6 +10,10 @@ const storageSchema = new Schema({
   logo: { type: String, required: false },
   status: { type: Boolean, required: true, default: true },
   auditStatus: { type: Boolean, required: true, default: true },
+  createdBy: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Company" 
+      },
 });
 
 

@@ -2,7 +2,7 @@
 import { Model, Types } from "mongoose";
 import { USER_ROLE } from "./user.constant";
 
-export interface TUser {
+export interface TUser extends Document {
   _id: Types.ObjectId;
   name: string;
   email: string;
@@ -14,9 +14,10 @@ export interface TUser {
   authroized: boolean;
   address?: string;
   image?: string;
-  createdBy?: string;
+  createdBy: Types.ObjectId;
   otp?: string;
   otpExpiry ?: Date
+  companyId?: Types.ObjectId; 
 }
 
 export interface UserModel extends Model<TUser> {

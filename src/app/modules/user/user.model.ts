@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import bcrypt from "bcrypt";
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 import config from "../../config";
 import { UserStatus } from "./user.constant";
 import { TUser, UserModel } from "./user.interface";
@@ -42,9 +42,15 @@ const userSchema = new Schema<TUser, UserModel>(
     phone: {
       type: String,
     },
-    createdBy: {
+    address: {
       type: String,
-      default: "admin",
+    },
+    image: {
+      type: String,
+    },
+    createdBy: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User" 
     },
     otp: {
       type: String,
@@ -53,6 +59,10 @@ const userSchema = new Schema<TUser, UserModel>(
     otpExpiry: {
       type: Date,
       default: null,
+    },
+    companyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
     },
   },
   {
