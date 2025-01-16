@@ -11,7 +11,7 @@ const companyCreate = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "company method created successfully",
+    message: "company created successfully",
     data: result,
   });
 });
@@ -23,7 +23,7 @@ const companyDelete = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "company method deleted successfully",
+    message: "company deleted successfully",
     data: result,
   });
 });

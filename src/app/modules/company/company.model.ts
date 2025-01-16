@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, CallbackError, Types } from 'mongoose';
-import { TCompany} from './company.interface';
+import { TCompany } from './company.interface';
 
 
 const companySchema = new Schema({
@@ -19,6 +19,10 @@ const companySchema = new Schema({
     type: String,
     required: true
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
   assignUser: [{
     type: Schema.Types.ObjectId,
     ref: 'User'
@@ -32,5 +36,5 @@ const companySchema = new Schema({
 
 
 // Apply the type at the model level
-const Company= mongoose.model<TCompany & Document>('Company', companySchema);
+const Company = mongoose.model<TCompany & Document>('Company', companySchema);
 export default Company;

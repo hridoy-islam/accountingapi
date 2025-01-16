@@ -48,7 +48,7 @@ const userSchema = new Schema<TUser, UserModel>(
     image: {
       type: String,
     },
-    createdBy: { 
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: "User" 
     },
@@ -63,6 +63,7 @@ const userSchema = new Schema<TUser, UserModel>(
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
+      default: null,
     },
   },
   {

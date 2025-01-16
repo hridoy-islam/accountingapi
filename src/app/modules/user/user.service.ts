@@ -6,7 +6,7 @@ import { User } from "./user.model";
 
 
 const getAllUserFromDB = async (query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(User.find(), query)
+  const userQuery = new QueryBuilder(User.find().populate('createdBy'), query)
     .search(UserSearchableFields)
     .filter()
     .sort()

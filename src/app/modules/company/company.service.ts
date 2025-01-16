@@ -120,7 +120,7 @@ const updateCompanyInDB = async (id: string, payload: Partial<TCompany>) => {
 
 // Retrieves all  Companys from the database with support for filtering, sorting, and pagination
 const getAllCompanysFromDB = async (query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(Company.find(), query)
+  const userQuery = new QueryBuilder(Company.find().populate('createdBy'), query)
     .search(companySearchableFields)
     .filter()
     .sort()
