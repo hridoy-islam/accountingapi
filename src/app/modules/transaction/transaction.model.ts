@@ -59,6 +59,11 @@ const transactionSchema = new Schema({
     type: Types.ObjectId,
     ref: 'Storage',
     required: true
+  },
+  companyId: {
+    type: Types.ObjectId,
+    ref: 'Company',
+    required: true
   }
 });
 

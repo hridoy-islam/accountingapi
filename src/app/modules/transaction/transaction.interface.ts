@@ -11,5 +11,6 @@ export interface TTransaction {
   transactionCategory: string;
   transactionMethod: string;
   storage: string;
+  companyId: string;
 
 }
