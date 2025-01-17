@@ -7,5 +7,6 @@ export interface TStorage extends Document {
   logo?: string; // Nullable
   status: boolean; // Not Null, Default: true
   auditStatus: boolean; // Not Null, Default: true
-  createdBy: Types.ObjectId;
+  companyId: Types.ObjectId;
+  
 }

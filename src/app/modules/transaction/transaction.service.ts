@@ -78,7 +78,7 @@ const updateTransactionInDB = async (id: string, payload: Partial<TTransaction>)
 
 // Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
 const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(Transaction.find(), query)
+  const userQuery = new QueryBuilder(Transaction.find().populate("storage transactionCategory transactionMethod"), query)
     .search(transactionSearchableFields)
     .filter()
     .sort()
