@@ -11,7 +11,7 @@ const categoryCreate = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "category method created successfully",
+    message: "category created successfully",
     data: result,
   });
 });
@@ -68,7 +68,4 @@ export const categoryControllers = {
   categoryUpdate,
   getAllCategorys,
   getOneCategory
-
-
- 
 };

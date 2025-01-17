@@ -10,7 +10,7 @@ const storageCreate = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Storage method created successfully",
+    message: "Storage created successfully",
     data: result,
   });
 });

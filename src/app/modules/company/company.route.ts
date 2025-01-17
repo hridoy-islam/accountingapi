@@ -8,7 +8,6 @@ import { companyControllers } from "./company.controller";
 
 const router = express.Router();
 
-
 router.post(
   "/",
   // auth('admin'),

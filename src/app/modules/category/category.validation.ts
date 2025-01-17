@@ -2,14 +2,17 @@ import { z } from "zod";
 
 const categorySchema = z.object({
   body: z.object({
-    categoryName: z.string().nonempty({ message: "categoryName is required" }), // Custom error for nonempty
-    categoryType: z.enum(["inflow", "outflow"], {
-      errorMap: () => ({ message: "categoryType must be 'inflow' or 'outflow'" }),
-    }),
-    parentCategoryId: z.string().nullable().optional(), // Allows null or undefined
+    name: z.string(),
+    type: z.enum(["inflow", "outflow"]),
+    parentId: z.string().nullable(),
+    audit: z.enum(["Active", "Inactive"]),
+    status: z.enum(["Active", "Inactive"]),
   }),
 }); // Ensures no extra fields are present
 
 export const categoryValidation = {
   categorySchema,
 };
+
+
+
