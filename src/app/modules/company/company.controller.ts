@@ -53,27 +53,44 @@ const getAllcompanys = catchAsync(async (req, res) => {
 
 const getOnecompany = catchAsync(async (req, res) => {
   const { id } = req.params;
-    const result = await CompanyServices.getOneCompanyFromDB(id);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "company method retrieved successfully",
-      data: result,
-    })
+  const result = await CompanyServices.getOneCompanyFromDB(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "company method retrieved successfully",
+    data: result,
   })
+})
 
-
-  const assignUsersToCompany = catchAsync(async (req, res)=>{
-    
+const assignUser = catchAsync(async (req, res) => {
+  const { companyId, userId } = req.params;
+  const result = await CompanyServices.addUserToCompany(companyId, userId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "company assign user added successfully",
+    data: result,
   })
+})
+
+const removeAssignUser = catchAsync(async (req, res) => {
+  const { companyId, userId } = req.params;
+  const result = await CompanyServices.removeUserFromCompany(companyId, userId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "company assign user removed successfully",
+    data: result,
+  })
+})
+
 
 export const companyControllers = {
   companyCreate,
   companyDelete,
   companyUpdate,
   getAllcompanys,
-  getOnecompany
-
-
- 
+  getOnecompany,
+  assignUser,
+  removeAssignUser
 };

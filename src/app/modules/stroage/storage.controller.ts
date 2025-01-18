@@ -22,7 +22,7 @@ const storageDelete = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Storage method deleted successfully",
+    message: "Storage deleted successfully",
     data: result,
   });
 });
@@ -34,7 +34,7 @@ const storageUpdate = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Storage method updated successfully",
+    message: "Storage updated successfully",
     data: result,
   });
 });

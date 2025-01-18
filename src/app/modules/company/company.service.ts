@@ -69,53 +69,13 @@ const deleteCompanyFromDB = async (payload: any) => {
 
 // Updates a  Company in the database by ID 
 const updateCompanyInDB = async (id: string, payload: Partial<TCompany>) => {
-  try {
-    // Validate company ID
-    const company = await Company.findById(id);
-    if (!company) {
-      throw new AppError(httpStatus.NOT_FOUND, "Company not found");
-    }
+  const result = await Company.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+    upsert: true,
+  });
 
-    // Handle assigning users if assignUser is present in the payload
-    if (payload.assignUser && payload.assignUser.length > 0) {
-      // Validate that the user IDs exist
-      const users = await User.find({ _id: { $in: payload.assignUser } });
-      if (users.length !== payload.assignUser.length) {
-        throw new AppError(httpStatus.BAD_REQUEST, "One or more user IDs are invalid");
-      }
-
-      // Ensure no duplicate user IDs are added to assignUser
-      const existingUserIds = new Set(company.assignUser || []);
-      const newUserIds = payload.assignUser.filter((userId) => !existingUserIds.has(userId));
-
-      if (newUserIds.length > 0) {
-        company.assignUser = [...existingUserIds, ...newUserIds];
-      }
-
-      // Remove `assignUser` from the payload to avoid overwriting during update
-      delete payload.assignUser;
-    }
-
-    // Update other fields in the company document
-    Object.assign(company, payload);
-
-    // Save the updated company document
-    const result = await company.save();
-
-    return result;
-  } catch (error: any) {
-    console.error("Error in updateCompanyInDB:", error);
-
-    // Re-throw the original error or wrap it with additional context
-    if (error instanceof AppError) {
-      throw error;
-    }
-
-    throw new AppError(
-      httpStatus.INTERNAL_SERVER_ERROR,
-      "Failed to update the company"
-    );
-  }
+  return result;
 };
 
 // Retrieves all  Companys from the database with support for filtering, sorting, and pagination
@@ -140,9 +100,68 @@ const getAllCompanysFromDB = async (query: Record<string, unknown>) => {
 
 // Retrieves a single  Company from the database by ID
 const getOneCompanyFromDB = async (id: string) => {
-  const result = await Company.findById(id);
+  const result = await Company.findById(id).populate('createdBy assignUser');
   return result;
 };
+
+const addUserToCompany = async (companyId: string, userId: string) => {
+  try {
+    const company = await Company.findById(companyId);
+    if (!company) {
+      throw new AppError(httpStatus.NOT_FOUND, "Company not found");
+    }
+
+    // Add the user ID to the assignUser array if not already present
+    if (!company.assignUser.includes(userId)) {
+      company.assignUser.push(userId);
+      await company.save();
+    }
+
+    return company;
+  } catch (error: any) {
+    console.error("Error in addUserToCompany:", error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to add user to company"
+    );
+  }
+};
+
+const removeUserFromCompany = async (companyId: string, userId: string) => {
+  try {
+    const company = await Company.findById(companyId);
+    if (!company) {
+      throw new AppError(httpStatus.NOT_FOUND, "Company not found");
+    }
+
+    // Correct usage of `new` with ObjectId
+    company.assignUser = company.assignUser.filter(user => !user.equals(new mongoose.Types.ObjectId(userId)));
+
+    await company.save();
+    return company;
+  } catch (error: any) {
+    console.error("Error in removeUserFromCompany:", error);
+
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to remove user from company"
+    );
+  }
+};
+
+
+
+
+
 
 
 
@@ -152,5 +171,7 @@ export const CompanyServices = {
   updateCompanyInDB,
   getAllCompanysFromDB,
   getOneCompanyFromDB,
+  addUserToCompany,
+  removeUserFromCompany
 
 };

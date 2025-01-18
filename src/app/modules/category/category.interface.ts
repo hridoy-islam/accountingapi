@@ -2,6 +2,6 @@ export interface TCategory {
   name: string;
   type: "inflow" | "outflow";
   parentId: string | null;
-  audit: "Active" | "In Active";
+  audit: "Active" | "Inactive";
   status: "Active" | "Inactive";
 }

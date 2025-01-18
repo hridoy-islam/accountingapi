@@ -15,18 +15,15 @@ const createTransactionIntoDB = async (payload: TTransaction) => {
     if (existingTransaction) {
       throw new AppError(httpStatus.CONFLICT, "This Transaction already exists!");
     }
-
     // Create and save the transaction
     const result = await Transaction.create(payload);
     return result;
   } catch (error: any) {
     console.error("Error in createTransactionIntoDB:", error);
-
     // Throw the original error or wrap it with additional context
     if (error instanceof AppError) {
       throw error;
     }
-
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Transaction");
   }
 };

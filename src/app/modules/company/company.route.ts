@@ -40,13 +40,9 @@ router.get(
   companyControllers.getOnecompany
 )
 
+router.post('/:companyId/user/:userId', companyControllers.assignUser);
 
-
-
-
-
-
-
+router.delete('/:companyId/user/:userId', companyControllers.removeAssignUser);
 
 export const companyRoute = router;
 
