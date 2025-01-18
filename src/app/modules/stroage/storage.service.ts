@@ -76,7 +76,7 @@ const updateStorageInDB = async (id: string, payload: Partial<TStorage>) => {
 
 // Retrieves all transaction Storages from the database with support for filtering, sorting, and pagination
 const getAllStoragesFromDB = async (query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(Storage.find(), query)
+  const userQuery = new QueryBuilder(Storage.find().populate('companyId'), query)
     .search(storageSearchableFields)
     .filter()
     .sort()
