@@ -80,6 +80,10 @@ const updateCompanyInDB = async (id: string, payload: Partial<TCompany>) => {
 
 // Retrieves all  Companys from the database with support for filtering, sorting, and pagination
 const getAllCompanysFromDB = async (query: Record<string, unknown>) => {
+  // Check if 'assignUser' exists in the query and modify it for array filtering
+  if (query.assignUser) {
+    query.assignUser = { $in: [query.assignUser] };
+  }
   const userQuery = new QueryBuilder(Company.find().populate('createdBy assignUser'), query)
     .search(companySearchableFields)
     .filter()
