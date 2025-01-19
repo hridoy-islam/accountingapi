@@ -4,14 +4,17 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import { transactionValidation } from "./transaction.validation";
 import { transactionControllers } from "./transaction.controller";
+import { upload } from "../../../app";
 
 
 const router = express.Router();
 
-
+console.log(upload)
 router.post(
   "/",
   // auth('admin'),
+  
+  // upload.single('transactionDoc'),
   validateRequest(transactionValidation.transactionSchema),
   transactionControllers.transactionCreate
 );

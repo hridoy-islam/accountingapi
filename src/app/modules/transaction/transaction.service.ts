@@ -4,13 +4,13 @@ import httpStatus from "http-status";
 import { TTransaction } from "./transaction.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { transactionSearchableFields } from "./transaction.constant";
-
+import { upload } from "../../../app"
 import Transaction from "./transaction.model";
 
 // Creates a new transaction  in the database after validating for duplicates
 const createTransactionIntoDB = async (payload: TTransaction) => {
   try {
-    // Check if the transaction tcid already exists
+
     const existingTransaction= await Transaction.findOne({ tcid: payload.tcid });
     if (existingTransaction) {
       throw new AppError(httpStatus.CONFLICT, "This Transaction already exists!");
@@ -37,13 +37,13 @@ const deleteTransactionFromDB = async (payload: any) => {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid ID format");
     }
 
-    // Check if the Transaction exists
+   
     const existingTransaction = await Transaction.findById(payload);
     if (!existingTransaction) {
-      throw new AppError(httpStatus.NOT_FOUND, "Transaction not found!");
+      throw new AppError(httpStatus.NOT_FOUND, "Transaciton not found!");
     }
 
-    // Delete the Transaction
+    
     const result = await Transaction.findByIdAndDelete(payload);
     if (!result) {
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the Transaction");
