@@ -8,6 +8,7 @@ import Transaction from "./transaction.model";
 import Storage from "../stroage/storage.model";
 import Category from "../category/category.model";
 import Method from "../transactionMethod/transactionMethod.model";
+import moment from "moment";
 
 const csvParser = require('csv-parser');
 const fs = require('fs');
@@ -32,59 +33,121 @@ const generateUniqueTcid = async (): Promise<string> => {
   return uniqueTcid;
 };
 
-const createTransactionIntoDB = async (payload: TTransaction) => {
-  const session = await Transaction.startSession(); // Start a session for the transaction
-  session.startTransaction();
+// const createTransactionIntoDB = async (payload: TTransaction) => {
+//   const session = await Transaction.startSession(); // Start a session for the transaction
+//   session.startTransaction();
+
+//   try {
+//     // Step 1: Generate unique tcid for the transaction
+//     const tcid = await generateUniqueTcid(); // Generate a unique tcid
+//     payload.tcid = tcid; // Assign the generated tcid to the payload
+
+//     // Step 2: Find the storage model by the provided storage ID in the payload
+//     const storage = await Storage.findById(payload.storage).session(session);
+//     if (!storage) {
+//       throw new AppError(httpStatus.NOT_FOUND, "Storage not found!");
+//     }
+
+//     // Step 3: Check the transactionType and adjust the openingBalance accordingly
+//     if (payload.transactionType === "inflow") {
+//       storage.openingBalance += payload.transactionAmount; // Inflow increases the balance
+//     } else if (payload.transactionType === "outflow") {
+//       storage.openingBalance -= payload.transactionAmount; // Outflow decreases the balance
+//     }
+
+//     // Step 4: Save the updated storage balance within the transaction
+//     await storage.save({ session });
+
+//     // Step 5: Create and save the transaction within the transaction
+//     const result = await Transaction.create([payload], { session });
+
+//     // Step 6: Commit the transaction
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     return result[0]; // Return the created transaction document
+//   } catch (error: any) {
+//     // If an error occurs, abort the transaction
+//     await session.abortTransaction();
+//     session.endSession();
+
+//     console.error("Error in createTransactionIntoDB:", error);
+//     // Throw the original error or wrap it with additional context
+//     if (error instanceof AppError) {
+//       throw error;
+//     }
+//     throw new AppError(
+//       httpStatus.INTERNAL_SERVER_ERROR,
+//       error.message || "Failed to create Transaction"
+//     );
+//   }
+// };
+
+export const createTransactionIntoDB = async (payload:any, session?: mongoose.ClientSession) => {
+  let localSession: mongoose.ClientSession | null = null;
 
   try {
+    // Start a session only if one isn't already provided
+    if (!session) {
+      localSession = await Transaction.startSession();
+      localSession.startTransaction();
+    }
+
+    const activeSession = session || localSession; // Use the passed session or the newly started one
+
     // Step 1: Generate unique tcid for the transaction
-    const tcid = await generateUniqueTcid(); // Generate a unique tcid
-    payload.tcid = tcid; // Assign the generated tcid to the payload
+    const tcid = await generateUniqueTcid();
+    payload.tcid = tcid;
 
     // Step 2: Find the storage model by the provided storage ID in the payload
-    const storage = await Storage.findById(payload.storage).session(session);
+    const storage = await Storage.findById(payload.storage).session(activeSession);
     if (!storage) {
-      throw new AppError(httpStatus.NOT_FOUND, "Storage not found!");
+      throw new AppError(httpStatus.NOT_FOUND, 'Storage not found!');
     }
 
-    // Step 3: Check the transactionType and adjust the openingBalance accordingly
-    if (payload.transactionType === "inflow") {
-      storage.openingBalance += payload.transactionAmount; // Inflow increases the balance
-    } else if (payload.transactionType === "outflow") {
-      storage.openingBalance -= payload.transactionAmount; // Outflow decreases the balance
+    // Step 3: Adjust the storage balance based on the transaction type
+    if (payload.transactionType === 'inflow') {
+      storage.openingBalance += payload.transactionAmount;
+    } else if (payload.transactionType === 'outflow') {
+      storage.openingBalance -= payload.transactionAmount;
     }
 
-    // Step 4: Save the updated storage balance within the transaction
-    await storage.save({ session });
+    // Step 4: Save the updated storage balance
+    await storage.save({ session: activeSession });
 
-    // Step 5: Create and save the transaction within the transaction
-    const result = await Transaction.create([payload], { session });
+    // Step 5: Create and save the transaction document
+    const result = await Transaction.create([payload], { session: activeSession });
 
-    // Step 6: Commit the transaction
-    await session.commitTransaction();
-    session.endSession();
+    // Step 6: Commit the transaction if we started it
+    if (localSession) {
+      await localSession.commitTransaction();
+      localSession.endSession();
+    }
 
-    return result[0]; // Return the created transaction document
+    return result[0]; // Return the created transaction
   } catch (error: any) {
-    // If an error occurs, abort the transaction
-    await session.abortTransaction();
-    session.endSession();
+    // If an error occurs, abort the transaction if we started it
+    if (localSession) {
+      await localSession.abortTransaction();
+      localSession.endSession();
+    }
 
-    console.error("Error in createTransactionIntoDB:", error);
+    console.error('Error in createTransactionIntoDB:', error);
+
     // Throw the original error or wrap it with additional context
     if (error instanceof AppError) {
       throw error;
     }
     throw new AppError(
       httpStatus.INTERNAL_SERVER_ERROR,
-      error.message || "Failed to create Transaction"
+      error.message || 'Failed to create Transaction'
     );
   }
 };
 
-const uploadCsvToDB = async (companyId, file) => {
+const uploadCsvToDB = async (companyId:any, file:any) => {
   const filePath = file.path; // Directly use the file path provided by multer
-  const results = [];
+  const results:any = [];
   let session;
 
   try {
@@ -92,7 +155,7 @@ const uploadCsvToDB = async (companyId, file) => {
     await new Promise((resolve, reject) => {
       fs.createReadStream(filePath)
         .pipe(csvParser())
-        .on('data', (data) => results.push(data))
+        .on('data', (data:any) => results.push(data))
         .on('end', resolve)
         .on('error', reject);
     });
@@ -136,7 +199,7 @@ const uploadCsvToDB = async (companyId, file) => {
 
     await session.commitTransaction();
     return transactions;
-  } catch (error) {
+  } catch (error:any) {
     if (session) {
       await session.abortTransaction();
     }
@@ -210,29 +273,29 @@ const updateTransactionInDB = async (
 
 // Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
 const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
-  console.log(query);
+
 
   // Initialize the dateFilter as an empty object
-  let dateFilter: any = {};
+  const { startDate, endDate, ...otherQueryParams}=query;
 
-  // Check if startDate and endDate are provided in the query
-  if (query.startDate && query.endDate) {
-    const startISO = moment(query.startDate).startOf("day").toDate(); // Use .toDate() to get a Date object
-    const endISO = moment(query.endDate).endOf("day").toDate(); // Use .toDate() to get a Date object
-
-    // Create the date filter with `transactionDate` field
-    dateFilter = {
-      transactionDate: {
-        $gte: startISO,
-        $lte: endISO,
-      },
-    };
+  const dateFilter: Record<string, unknown> = {};
+  if (startDate) {
+    dateFilter['$gte'] = moment(startDate as string).startOf('day').toDate();
   }
+  if (endDate) {
+    dateFilter['$lte'] = moment(endDate as string).endOf('day').toDate();
+  }
+
+  // Include the date filter only if there's a startDate or endDate
+  if (Object.keys(dateFilter).length > 0) {
+    otherQueryParams['transactionDate'] =dateFilter;}
+
+ 
 
   // Build the query with the optional dateFilter applied
   const userQuery = new QueryBuilder(
-    Transaction.find(dateFilter).populate("storage transactionCategory transactionMethod"),
-    query
+    Transaction.find().populate("storage transactionCategory transactionMethod"),
+    otherQueryParams
   )
     .search(transactionSearchableFields)
     .filter() // This will handle other filters if any are applied

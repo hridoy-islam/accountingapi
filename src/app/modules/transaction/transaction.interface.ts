@@ -1,5 +1,4 @@
 export interface TTransaction {
-  tcid: string;
   transactionType: "inflow" | "outflow";
   transactionDate: Date;
   invoiceNumber?: string;
