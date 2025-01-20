@@ -5,9 +5,6 @@ import { z } from "zod";
 
 const transactionSchema = z.object({
   body: z.object({
-    tcid: z.string({ required_error: "Transaction ID is required." })
-    .regex(/^TC\d{6}$/, { message: "Transaction ID must be in the format TC000001." })
-    .refine((val) => val.startsWith("TC") && val.length === 8, { message: "Transaction ID must be in the format TC000001." }).optional(),
   transactionType: z.enum(["inflow", "outflow"], { required_error: "Transaction type is required." }),
   transactionDate: z.string({ required_error: "Transaction date is required." }).transform((str) => new Date(str)),
   invoiceNumber: z.string().optional(),
