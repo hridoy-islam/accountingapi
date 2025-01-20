@@ -16,6 +16,8 @@ router.post(
   transactionControllers.transactionCreate
 );
 
+router.post('/', transactionControllers.uploadCsv)
+
 router.delete(
   "/:id",
   // auth('admin'),

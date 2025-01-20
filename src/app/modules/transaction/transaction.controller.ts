@@ -16,6 +16,16 @@ const transactionCreate = catchAsync(async (req, res) => {
   });
 });
 
+const uploadCsv = catchAsync(async (req, res) => {
+  const result = await TransactionServices.createTransactionIntoDB(req.body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "CSV Uploaded successfully",
+    data: result,
+  });
+});
+
 // Controller to delete a transaction method by ID
 const transactionDelete = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -67,8 +77,6 @@ export const transactionControllers = {
   transactionDelete,
   transactionUpdate,
   getAlltransactions,
-  getOnetransaction
-
-
- 
+  getOnetransaction,
+  uploadCsv
 };
