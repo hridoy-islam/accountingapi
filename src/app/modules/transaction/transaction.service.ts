@@ -7,6 +7,7 @@ import { transactionSearchableFields } from "./transaction.constant";
 
 import Transaction from "./transaction.model";
 import Storage from "../stroage/storage.model";
+import moment from "moment";
 
 const generateUniqueTcid = async (): Promise<string> => {
   const prefix = "TC";
@@ -16,12 +17,11 @@ const generateUniqueTcid = async (): Promise<string> => {
   // Retry logic to generate a unique tcid
   while (true) {
     const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random 6-digit number
-    uniqueTcid = `${prefix}${randomNumber.toString().padStart(6, '0')}`;
+    uniqueTcid = `${prefix}${randomNumber.toString().padStart(6, "0")}`;
 
-    // Check if the tcid already exists in the database
     existingTransaction = await Transaction.findOne({ tcid: uniqueTcid });
     if (!existingTransaction) {
-      break; // Exit loop when a unique tcid is found
+      break;
     }
   }
 
@@ -71,16 +71,16 @@ const createTransactionIntoDB = async (payload: TTransaction) => {
     if (error instanceof AppError) {
       throw error;
     }
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Transaction");
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Failed to create Transaction"
+    );
   }
 };
 
-const uploadCsvToDB = async() => {
-  
-}
+const uploadCsvToDB = async () => {};
 
-
-// Deletes a transaction Transaction from the database by ID 
+// Deletes a transaction Transaction from the database by ID
 const deleteTransactionFromDB = async (payload: any) => {
   try {
     // Validate the payload ID
@@ -97,7 +97,10 @@ const deleteTransactionFromDB = async (payload: any) => {
     // Delete the Transaction
     const result = await Transaction.findByIdAndDelete(payload);
     if (!result) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the Transaction");
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to delete the Transaction"
+      );
     }
 
     return result;
@@ -109,12 +112,18 @@ const deleteTransactionFromDB = async (payload: any) => {
       throw error;
     }
 
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR,  "Failed to delete Transaction");
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to delete Transaction"
+    );
   }
 };
 
-// Updates a  Transaction in the database by ID 
-const updateTransactionInDB = async (id: string, payload: Partial<TTransaction>) => {
+// Updates a  Transaction in the database by ID
+const updateTransactionInDB = async (
+  id: string,
+  payload: Partial<TTransaction>
+) => {
   const result = await Transaction.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
@@ -126,9 +135,32 @@ const updateTransactionInDB = async (id: string, payload: Partial<TTransaction>)
 
 // Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
 const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(Transaction.find().populate("storage transactionCategory transactionMethod"), query)
+  console.log(query);
+
+  // Initialize the dateFilter as an empty object
+  let dateFilter: any = {};
+
+  // Check if startDate and endDate are provided in the query
+  if (query.startDate && query.endDate) {
+    const startISO = moment(query.startDate).startOf("day").toDate(); // Use .toDate() to get a Date object
+    const endISO = moment(query.endDate).endOf("day").toDate(); // Use .toDate() to get a Date object
+
+    // Create the date filter with `transactionDate` field
+    dateFilter = {
+      transactionDate: {
+        $gte: startISO,
+        $lte: endISO,
+      },
+    };
+  }
+
+  // Build the query with the optional dateFilter applied
+  const userQuery = new QueryBuilder(
+    Transaction.find(dateFilter).populate("storage transactionCategory transactionMethod"),
+    query
+  )
     .search(transactionSearchableFields)
-    .filter()
+    .filter() // This will handle other filters if any are applied
     .sort()
     .paginate()
     .fields();
@@ -153,5 +185,5 @@ export const TransactionServices = {
   deleteTransactionFromDB,
   updateTransactionInDB,
   getAllTransactionsFromDB,
-  getOneTransactionFromDB
+  getOneTransactionFromDB,
 };
