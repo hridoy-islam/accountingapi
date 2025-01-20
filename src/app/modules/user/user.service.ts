@@ -3,6 +3,8 @@ import QueryBuilder from "../../builder/QueryBuilder";
 import { UserSearchableFields } from "./user.constant";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
+import bcrypt from "bcrypt";
+import config from "../../config";
 
 
 const getAllUserFromDB = async (query: Record<string, unknown>) => {
@@ -28,6 +30,10 @@ const getSingleUserFromDB = async (id: string) => {
 };
 
 const updateUserIntoDB = async (id: string, payload: Partial<TUser>) => {
+  if (payload.password) {
+    // Hash the password before updating if it's provided
+    payload.password = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_rounds));
+  }
 
   const result = await User.findByIdAndUpdate(id, payload, {
     new: true,
