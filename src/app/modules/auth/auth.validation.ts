@@ -20,7 +20,8 @@ const createUserValidationSchema = z.object({
     name: z.string({ required_error: "User Name is Required" }),
     email: z.string({ required_error: "User Email is Required" }),
     password: z.string({ required_error: "Password required" }),
-    phone: z.string({ required_error: "Password required" })
+    phone: z.string({ required_error: "Password required" }),
+    role: z.string({ required_error: "role required" })
   }),
 });
 
