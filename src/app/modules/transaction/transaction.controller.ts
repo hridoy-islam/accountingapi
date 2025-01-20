@@ -17,7 +17,8 @@ const transactionCreate = catchAsync(async (req, res) => {
 });
 
 const uploadCsv = catchAsync(async (req, res) => {
-  const result = await TransactionServices.createTransactionIntoDB(req.body);
+  const { companyId } = req.params;
+  const result = await TransactionServices.uploadCsvToDB(companyId, req.file);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

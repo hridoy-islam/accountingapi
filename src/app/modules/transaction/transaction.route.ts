@@ -4,6 +4,7 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import { transactionValidation } from "./transaction.validation";
 import { transactionControllers } from "./transaction.controller";
+import { upload } from "../../utils/multer";
 
 
 const router = express.Router();
@@ -16,7 +17,7 @@ router.post(
   transactionControllers.transactionCreate
 );
 
-router.post('/', transactionControllers.uploadCsv)
+router.post('/company/:companyId', upload.single('file'), transactionControllers.uploadCsv)
 
 router.delete(
   "/:id",

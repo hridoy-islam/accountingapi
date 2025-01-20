@@ -4,10 +4,14 @@ import httpStatus from "http-status";
 import { TTransaction } from "./transaction.interface";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { transactionSearchableFields } from "./transaction.constant";
-
 import Transaction from "./transaction.model";
 import Storage from "../stroage/storage.model";
-import moment from "moment";
+import Category from "../category/category.model";
+import Method from "../transactionMethod/transactionMethod.model";
+
+const csvParser = require('csv-parser');
+const fs = require('fs');
+const path = require('path');
 
 const generateUniqueTcid = async (): Promise<string> => {
   const prefix = "TC";
@@ -78,7 +82,78 @@ const createTransactionIntoDB = async (payload: TTransaction) => {
   }
 };
 
-const uploadCsvToDB = async () => {};
+const uploadCsvToDB = async (companyId, file) => {
+  const filePath = file.path; // Directly use the file path provided by multer
+  const results = [];
+  let session;
+
+  try {
+    // Read and parse the CSV file
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    const transactions = [];
+
+    for (const row of results) {
+      const [category, method, storage] = await Promise.all([
+        Category.findOne({ name: row.transactionCategory }).session(session),
+        Method.findOne({ name: row.transactionMethod }).session(session),
+        Storage.findOne({ storageName: row.storage, companyId: companyId }).session(session),
+      ]);
+
+      if (!category || !method || !storage) {
+        throw new AppError(
+          httpStatus.NOT_FOUND,
+          `Lookup failed for row: ${JSON.stringify(row)}`
+        );
+      }
+
+      const payload = {
+        transactionType: row.transactionType,
+        transactionDate: new Date(row.transactionDate),
+        invoiceNumber: row.invoiceNumber,
+        invoiceDate: row.invoiceDate ? new Date(row.invoiceDate) : null,
+        details: row.details,
+        description: row.description,
+        transactionAmount: parseFloat(row.transactionAmount),
+        transactionCategory: category._id,
+        transactionMethod: method._id,
+        storage: storage._id,
+        companyId: companyId,
+      };
+
+      const transaction = await createTransactionIntoDB(payload, session); // Ensure session is passed
+      transactions.push(transaction);
+    }
+
+    await session.commitTransaction();
+    return transactions;
+  } catch (error) {
+    if (session) {
+      await session.abortTransaction();
+    }
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Failed to process CSV data"
+    );
+  } finally {
+    if (session) {
+      session.endSession();
+    }
+    fs.unlinkSync(filePath); // Ensure the file is always deleted
+  }
+};
+
+
+
 
 // Deletes a transaction Transaction from the database by ID
 const deleteTransactionFromDB = async (payload: any) => {
@@ -186,4 +261,5 @@ export const TransactionServices = {
   updateTransactionInDB,
   getAllTransactionsFromDB,
   getOneTransactionFromDB,
+  uploadCsvToDB
 };
