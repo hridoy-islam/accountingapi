@@ -145,40 +145,59 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
   }
 };
 
-const uploadCsvToDB = async (companyId:any, file:any) => {
-  const filePath = file.path; // Directly use the file path provided by multer
-  const results:any = [];
-  let session;
-
+const uploadCsvToDB = async (companyId: any, file: any) => {
+  const filePath = file.path; // File path from multer
+  const results: any[] = [];
+  let session: mongoose.ClientSession | null = null;
+  let transactionNumber = 1; // Initialize transaction number tracking
+  
   try {
     // Read and parse the CSV file
     await new Promise((resolve, reject) => {
       fs.createReadStream(filePath)
         .pipe(csvParser())
-        .on('data', (data:any) => results.push(data))
+        .on('data', (data: any) => results.push(data))
         .on('end', resolve)
         .on('error', reject);
     });
 
+    // Start a session for the transaction
     session = await mongoose.startSession();
     session.startTransaction();
 
-    const transactions = [];
+    const transactions: any[] = [];
 
+    // Process each row
     for (const row of results) {
+      console.log('Processing row:', row); // Log each row for debugging
+
       const [category, method, storage] = await Promise.all([
         Category.findOne({ name: row.transactionCategory }).session(session),
         Method.findOne({ name: row.transactionMethod }).session(session),
         Storage.findOne({ storageName: row.storage, companyId: companyId }).session(session),
       ]);
 
-      if (!category || !method || !storage) {
+      // Check if lookups failed
+      if (!category) {
         throw new AppError(
           httpStatus.NOT_FOUND,
-          `Lookup failed for row: ${JSON.stringify(row)}`
+          `Category lookup failed for row: ${JSON.stringify(row)}`
+        );
+      }
+      if (!method) {
+        throw new AppError(
+          httpStatus.NOT_FOUND,
+          `Method lookup failed for row: ${JSON.stringify(row)}`
+        );
+      }
+      if (!storage) {
+        throw new AppError(
+          httpStatus.NOT_FOUND,
+          `Storage lookup failed for row: ${JSON.stringify(row)}`
         );
       }
 
+      // Prepare transaction payload
       const payload = {
         transactionType: row.transactionType,
         transactionDate: new Date(row.transactionDate),
@@ -191,15 +210,20 @@ const uploadCsvToDB = async (companyId:any, file:any) => {
         transactionMethod: method._id,
         storage: storage._id,
         companyId: companyId,
+        transactionNumber: transactionNumber++, // Increment the transaction number
       };
 
-      const transaction = await createTransactionIntoDB(payload, session); // Ensure session is passed
+      // Create the transaction in the database and track the transaction
+      const transaction = await createTransactionIntoDB(payload, session);
       transactions.push(transaction);
     }
 
+    // Ensure commit only after all transactions are created
     await session.commitTransaction();
+
     return transactions;
-  } catch (error:any) {
+  } catch (error: any) {
+    console.error('Transaction failed:', error.message);
     if (session) {
       await session.abortTransaction();
     }
@@ -211,7 +235,7 @@ const uploadCsvToDB = async (companyId:any, file:any) => {
     if (session) {
       session.endSession();
     }
-    fs.unlinkSync(filePath); // Ensure the file is always deleted
+    fs.unlinkSync(filePath); // Ensure the file is deleted after processing
   }
 };
 

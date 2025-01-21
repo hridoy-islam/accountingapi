@@ -115,6 +115,11 @@ const addUserToCompany = async (companyId: string, userId: string) => {
       throw new AppError(httpStatus.NOT_FOUND, "Company not found");
     }
 
+    // Ensure 'assignUser' is initialized as an array if it's undefined
+    if (!Array.isArray(company.assignUser)) {
+      company.assignUser = [];
+    }
+
     // Add the user ID to the assignUser array if not already present
     if (!company.assignUser.includes(userId)) {
       company.assignUser.push(userId);
@@ -143,8 +148,13 @@ const removeUserFromCompany = async (companyId: string, userId: string) => {
       throw new AppError(httpStatus.NOT_FOUND, "Company not found");
     }
 
-    // Correct usage of `new` with ObjectId
-    company.assignUser = company.assignUser.filter(user => !user.equals(new mongoose.Types.ObjectId(userId)));
+    // Ensure 'assignUser' is initialized as an array if it's undefined
+    if (!Array.isArray(company.assignUser)) {
+      company.assignUser = [];
+    }
+
+    // Check if company.assignUser contains ObjectIds or strings
+    company.assignUser = company.assignUser.filter(user => user.toString() !== userId);
 
     await company.save();
     return company;
@@ -161,7 +171,6 @@ const removeUserFromCompany = async (companyId: string, userId: string) => {
     );
   }
 };
-
 
 
 
