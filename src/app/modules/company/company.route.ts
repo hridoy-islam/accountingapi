@@ -10,39 +10,38 @@ const router = express.Router();
 
 router.post(
   "/",
-  // auth('admin'),
+  auth("admin", "user"),
   validateRequest(companyValidation.companySchema),
   companyControllers.companyCreate
 );
 
 router.delete(
   "/:id",
-  // auth('admin'),
-  // validateRequest(categoryValidation.categorySchema),
+  auth("admin", "user"),
   companyControllers.companyDelete
 );
 
 router.patch(
   "/:id",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   companyControllers.companyUpdate
 );
 
 router.get(
   "/",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   companyControllers.getAllcompanys
 );
 
 router.get(
   "/:id",
-  // auth('admin'),
+  auth("admin", "user"),
   companyControllers.getOnecompany
 )
 
-router.post('/:companyId/user/:userId', companyControllers.assignUser);
+router.post('/:companyId/user/:userId', auth("admin", "user"), companyControllers.assignUser);
 
-router.delete('/:companyId/user/:userId', companyControllers.removeAssignUser);
+router.delete('/:companyId/user/:userId', auth("admin", "user"), companyControllers.removeAssignUser);
 
 export const companyRoute = router;
 

@@ -11,33 +11,32 @@ const router = express.Router();
 
 router.post(
   "/",
-  // auth('admin'),
+  auth("admin", "user"),
   validateRequest(transactionMethodValidation.transactionMethodSchema),
   transactionMethodControllers.transactionMethodCreate
 );
 
 router.delete(
   "/:id",
-  // auth('admin'),
-  // validateRequest(transactionMethodValidation.transactionMethodSchema),
+  auth("admin", "user"),
   transactionMethodControllers.transactionMethodDelete
 );
 
 router.patch(
   "/:id",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   transactionMethodControllers.transactionMethodUpdate
 );
 
 router.get(
   "/",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   transactionMethodControllers.getAllMethods
 );
 
 router.get(
   "/:id",
-  // auth('admin'),
+  auth("admin", "user"),
   transactionMethodControllers.getOneMethod
 )
 

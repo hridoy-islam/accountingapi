@@ -8,46 +8,36 @@ import { categoryControllers } from "./category.controller";
 
 const router = express.Router();
 
-
 router.post(
   "/",
-  // auth('admin'),
+  auth("admin", "user"),
   validateRequest(categoryValidation.categorySchema),
   categoryControllers.categoryCreate
 );
 
 router.delete(
   "/:id",
-  // auth('admin'),
-  // validateRequest(categoryValidation.categorySchema),
+  auth("admin", "user"),
   categoryControllers.categoryDelete
 );
 
 router.patch(
   "/:id",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   categoryControllers.categoryUpdate
 );
 
 router.get(
   "/",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   categoryControllers.getAllCategorys
 );
 
 router.get(
   "/:id",
-  // auth('admin'),
+  auth("admin", "user"),
   categoryControllers.getOneCategory
 )
-
-
-
-
-
-
-
-
 
 export const categoryRoute = router;
 

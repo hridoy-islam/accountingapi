@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  // auth('admin'),
+  auth("admin", "user"),
   validateRequest(transactionValidation.transactionSchema),
   transactionControllers.transactionCreate
 );
@@ -21,26 +21,26 @@ router.post('/company/:companyId', upload.single('file'), transactionControllers
 
 router.delete(
   "/:id",
-  // auth('admin'),
+  auth("admin", "user"),
   validateRequest(transactionValidation.transactionSchema),
   transactionControllers.transactionDelete
 );
 
 router.patch(
   "/:id",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   transactionControllers.transactionUpdate
 );
 
 router.get(
   "/",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   transactionControllers.getAlltransactions
 );
 
 router.get(
   "/:id",
-  // auth('admin'),
+  auth("admin", "user"),
   transactionControllers.getOnetransaction
 )
 
