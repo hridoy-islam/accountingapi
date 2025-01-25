@@ -3,7 +3,7 @@ import { TCategory} from './category.interface';
 
 
 const categorySchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, unique: true },
   type: { type: String, enum: ["inflow", "outflow"], required: true },
   parentId: { type: String, default: null },
   audit: { type: String, enum: ["Active", "Inactive"], required: true },
@@ -13,5 +13,6 @@ const categorySchema = new Schema({
 
 
 // Apply the type at the model level
+
 const Category= mongoose.model<TCategory & Document>('Category', categorySchema);
 export default Category;
