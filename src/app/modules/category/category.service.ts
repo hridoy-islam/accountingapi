@@ -12,10 +12,8 @@ import { TCategory } from "./category.interface";
 const createCategoryIntoDB = async (payload: TCategory) => {
   try {
     // Check if the Category tcid already exists
-    const existingCategory= await Category.findOne({ name: payload.name });
-    if (existingCategory) {
-      throw new AppError(httpStatus.CONFLICT, "This Category name already exists!");
-    }
+   
+    
 
     // Create and save the Category
     const result = await Category.create(payload);

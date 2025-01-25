@@ -3,7 +3,7 @@ import { TCategory} from './category.interface';
 
 
 const categorySchema = new Schema({
-  name: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
   type: { type: String, enum: ["inflow", "outflow"], required: true },
   parentId: { type: String, default: null },
   audit: { type: String, enum: ["Active", "Inactive"], required: true },
