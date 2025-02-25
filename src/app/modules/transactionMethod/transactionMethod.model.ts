@@ -5,7 +5,12 @@ import { TMethod } from './transactionMethod.interface';
 
 const transactionMethodSchema = new Schema({
   name: { type: String, required: true }, // Stored as ISO string
-  
+  companyId:{
+    
+       type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+   
+  }
 });
 
 

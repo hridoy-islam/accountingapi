@@ -92,6 +92,22 @@ const getAllCategorysFromDB = async (query: Record<string, unknown>) => {
     result,
   };
 };
+// Retrieves all  Categorys from the database with support for filtering, sorting, and pagination
+const getAllComapanyCategorysFromDB = async (companyId:string,query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(Category.find({companyId}).populate("companyId"), query)
+    .search(categorySearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
+};
 
 // Retrieves a single  Category from the database by ID
 const getOneCategoryFromDB = async (id: string) => {
@@ -104,5 +120,6 @@ export const CategoryServices = {
   deleteCategoryFromDB,
   updateCategoryInDB,
   getAllCategorysFromDB,
-  getOneCategoryFromDB
+  getOneCategoryFromDB,
+  getAllComapanyCategorysFromDB
 };

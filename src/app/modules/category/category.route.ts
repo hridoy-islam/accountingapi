@@ -10,32 +10,37 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   validateRequest(categoryValidation.categorySchema),
   categoryControllers.categoryCreate
 );
 
+router.get(
+  "/company/:id",
+  auth("admin", "user","company"),
+  categoryControllers.getCategoryByCompany
+);
 router.delete(
   "/:id",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   categoryControllers.categoryDelete
 );
 
 router.patch(
   "/:id",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   categoryControllers.categoryUpdate
 );
 
 router.get(
   "/",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   categoryControllers.getAllCategorys
 );
 
 router.get(
   "/:id",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   categoryControllers.getOneCategory
 )
 

@@ -91,6 +91,22 @@ const getAllStoragesFromDB = async (query: Record<string, unknown>) => {
     result,
   };
 };
+const getAllCompanyStoragesFromDB = async (companyId:string,query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(Storage.find({companyId}).populate('companyId'), query)
+    .search(storageSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
+};
 
 // Retrieves a single transaction Storage from the database by ID
 const getOneStorageFromDB = async (id: string) => {
@@ -103,5 +119,6 @@ export const StorageServices = {
   deleteStorageFromDB,
   updateStorageInDB,
   getAllStoragesFromDB,
-  getOneStorageFromDB
+  getOneStorageFromDB,
+  getAllCompanyStoragesFromDB
 };

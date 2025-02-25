@@ -51,6 +51,7 @@ const getAllCategorys = catchAsync(async (req, res) => {
   });
 });
 
+
 const getOneCategory = catchAsync(async (req, res) => {
   const { id } = req.params;
     const result = await CategoryServices.getOneCategoryFromDB(id);
@@ -61,11 +62,24 @@ const getOneCategory = catchAsync(async (req, res) => {
       data: result,
     })
   })
+  const getCategoryByCompany = catchAsync(async (req, res) => {
+    const { id } = req.params;
+
+    
+    const result = await CategoryServices.getAllComapanyCategorysFromDB(id,req.query);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "category methods retrieved successfully",
+      data: result,
+    });
+  });
 
 export const categoryControllers = {
   categoryCreate,
   categoryDelete,
   categoryUpdate,
   getAllCategorys,
-  getOneCategory
+  getOneCategory,
+  getCategoryByCompany
 };

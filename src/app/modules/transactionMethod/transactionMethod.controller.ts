@@ -49,6 +49,17 @@ const getAllMethods = catchAsync(async (req, res) => {
     data: result,
   });
 });
+// Controller to retrieve all companies transaction methods from the database
+const getAllCompanyMethods = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await transactionMethodServices.getAllCompanyMethodsFromDB(id,req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Transaction methods retrieved successfully",
+    data: result,
+  });
+});
 
 const getOneMethod = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -65,5 +76,5 @@ export const transactionMethodControllers = {
   transactionMethodCreate,
   transactionMethodDelete,
   transactionMethodUpdate,
-  getAllMethods, getOneMethod
+  getAllMethods, getOneMethod, getAllCompanyMethods
 };

@@ -21,7 +21,7 @@ router.post('/company/:companyId', upload.single('file'), transactionControllers
 
 router.delete(
   "/:id",
-  auth("admin", "user"),
+  auth("admin"),
   validateRequest(transactionValidation.transactionSchema),
   transactionControllers.transactionDelete
 );
@@ -34,7 +34,7 @@ router.patch(
 
 router.get(
   "/",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   transactionControllers.getAlltransactions
 );
 

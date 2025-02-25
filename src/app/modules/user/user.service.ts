@@ -44,8 +44,27 @@ const updateUserIntoDB = async (id: string, payload: Partial<TUser>) => {
   return result;
 };
 
+const getAllCompanyUserFromDB = async (companyId:string, query: Record<string, unknown>) => {
+
+  const userQuery = new QueryBuilder(User.find({companyId}).populate('createdBy companyId'), query)
+    .search(UserSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
+};
+
 export const UserServices = {
   getAllUserFromDB,
   getSingleUserFromDB,
   updateUserIntoDB,
+  getAllCompanyUserFromDB
 };

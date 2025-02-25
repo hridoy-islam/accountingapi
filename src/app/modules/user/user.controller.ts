@@ -24,6 +24,17 @@ const getSingleUser = catchAsync(async (req, res) => {
   });
 });
 
+const getAllCompanyUser=catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserServices.getAllCompanyUserFromDB(id,req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Users retrived succesfully",
+    data: result,
+  });
+});
+
 const updateUser = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await UserServices.updateUserIntoDB(id, req.body);
@@ -41,4 +52,5 @@ export const UserControllers = {
   getAllUser,
   getSingleUser,
   updateUser,
+  getAllCompanyUser
 };

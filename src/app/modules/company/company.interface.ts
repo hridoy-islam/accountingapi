@@ -4,5 +4,6 @@ export interface TCompany {
   phone: string;
   companyAddress: string;
   assignUser ?: string[];
-  logo ?: string
+  logo ?: string;
+  password : string;
 }

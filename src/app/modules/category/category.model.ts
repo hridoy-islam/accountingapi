@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { TCategory} from './category.interface';
+import { string } from 'zod';
 
 
 const categorySchema = new Schema({
@@ -8,6 +9,10 @@ const categorySchema = new Schema({
   parentId: { type: String, default: null },
   audit: { type: String, enum: ["Active", "Inactive"], required: true },
   status: { type: String, enum: ["Active", "Inactive"], required: true },
+  companyId:{
+    type: Schema.Types.ObjectId,
+      ref: "User",
+  }
 });
 
 

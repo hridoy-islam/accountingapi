@@ -60,13 +60,24 @@ const getOneStorage = catchAsync(async (req, res) => {
       data: result,
     })
   })
+const getCompanyStorage = catchAsync(async (req, res) => {
+  const { id } = req.params;
+    const result = await StorageServices.getAllCompanyStoragesFromDB(id,req.query);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Storage method retrieved successfully",
+      data: result,
+    })
+  })
 
 export const storageControllers = {
   storageCreate,
   storageDelete,
   storageUpdate,
   getAllStorages,
-  getOneStorage
+  getOneStorage,
+  getCompanyStorage
 
 
  

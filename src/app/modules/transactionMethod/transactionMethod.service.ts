@@ -10,7 +10,8 @@ import { transactionMethodSearchableFields } from "./transactionMethod.constant"
 const createMethodIntoDB = async (payload: TMethod) => {
   try {
     // Check if the method name already exists
-    const existingMethod = await Method.findOne({ name: payload.name });
+    const existingMethod = await Method.findOne({ name: payload.name ,    companyId: payload.companyId 
+    });
     if (existingMethod) {
       throw new AppError(httpStatus.CONFLICT, "This method name already exists!");
     }
@@ -92,6 +93,25 @@ const getAllMethodsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
+// Retrieves all companies transaction methods from the database with support for filtering, sorting, and pagination
+
+const getAllCompanyMethodsFromDB = async (companyId:string,query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(Method.find({companyId}).populate("companyId"), query)
+    .search(transactionMethodSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery.exec();
+
+  return {
+    meta,
+    result,
+  };
+};
+
 // Retrieves a single transaction method from the database by ID
 const getOneMethodFromDB = async (id: string) => {
   const result = await Method.findById(id);
@@ -103,5 +123,6 @@ export const transactionMethodServices = {
   deleteMethodFromDB,
   updateMethodInDB,
   getAllMethodsFromDB,
-  getOneMethodFromDB
+  getOneMethodFromDB,
+  getAllCompanyMethodsFromDB
 };

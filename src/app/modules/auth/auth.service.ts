@@ -40,6 +40,7 @@ const checkLogin = async (payload: TLogin, ipaddress: string) => {
         email: foundUser?.email,
         name: foundUser?.name,
         role: foundUser?.role,
+        companyId:foundUser?.companyId
       },
       `${config.jwt_access_secret}`,
       {
@@ -48,7 +49,9 @@ const checkLogin = async (payload: TLogin, ipaddress: string) => {
     );
 
     return {
-      accessToken
+      accessToken,
+     
+      
     };
   } catch (error) {
     throw new AppError(httpStatus.NOT_FOUND, "Details doesnt match");

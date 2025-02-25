@@ -23,7 +23,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin","company"],
       default: "user",
     },
     status: {
@@ -62,7 +62,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
+      ref: "User",
       default: null,
     },
   },

@@ -8,7 +8,7 @@ export interface TUser extends Document {
   email: string;
   phone: string;
   password: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "company";
   status: "block" | "active";
   isDeleted: boolean;
   authroized: boolean;
@@ -17,7 +17,9 @@ export interface TUser extends Document {
   createdBy: Types.ObjectId;
   otp?: string;
   otpExpiry ?: Date
-  companyId?: Types.ObjectId; 
+  companyId?: Types.ObjectId;
+  
+  
 }
 
 export interface UserModel extends Model<TUser> {
