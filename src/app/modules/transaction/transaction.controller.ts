@@ -4,7 +4,6 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 import { TransactionServices } from "./transaction.service";
 
-
 // Controller to create a new transaction method
 const transactionCreate = catchAsync(async (req, res) => {
   const result = await TransactionServices.createTransactionIntoDB(req.body);
@@ -64,14 +63,14 @@ const getAlltransactions = catchAsync(async (req, res) => {
 
 const getOnetransaction = catchAsync(async (req, res) => {
   const { id } = req.params;
-    const result = await TransactionServices.getOneTransactionFromDB(id);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "transaction method retrieved successfully",
-      data: result,
-    })
-  })
+  const result = await TransactionServices.getOneTransactionFromDB(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "transaction method retrieved successfully",
+    data: result,
+  });
+});
 
 export const transactionControllers = {
   transactionCreate,
@@ -79,5 +78,4 @@ export const transactionControllers = {
   transactionUpdate,
   getAlltransactions,
   getOnetransaction,
-  uploadCsv
 };

@@ -29,9 +29,32 @@ router.post(
 );
 
 router.delete(
-  "/:companyId/user/:userId",
-  auth("admin", "user"),
-  companyControllers.removeAssignUser
+  "/:id",
+  auth('admin'),
+  // validateRequest(categoryValidation.categorySchema),
+  companyControllers.companyDelete
 );
+
+router.patch(
+  "/:id",
+  auth("admin", "user"),
+  companyControllers.companyUpdate
+);
+
+router.get(
+  "/",
+  auth("admin", "user"),
+  companyControllers.getAllcompanys
+);
+
+router.get(
+  "/:id",
+  auth('admin'),
+  companyControllers.getOnecompany
+)
+
+router.post('/:companyId/user/:userId', companyControllers.assignUser);
+
+router.delete('/:companyId/user/:userId', companyControllers.removeAssignUser);
 
 export const companyRoute = router;

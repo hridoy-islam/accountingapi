@@ -6,6 +6,7 @@ import { transactionMethodRoute } from "../modules/transactionMethod/transcation
 import { categoryRoute } from "../modules/category/category.route";
 import { transactionRoute } from "../modules/transaction/transaction.route";
 import { companyRoute } from "../modules/company/company.route";
+import { reportRoute } from "../modules/report/report.route";
 
 const router = Router();
 
@@ -40,6 +41,10 @@ const moduleRoutes = [
   {
     path: '/companies',
     route: companyRoute
+  },
+  {
+    path: '/report',
+    route: reportRoute
   }
 ];
 

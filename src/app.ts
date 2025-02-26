@@ -8,8 +8,11 @@ import express, { Application, Request, Response } from "express";
 import globalErrorHandler from "./app/middlewares/globalErrorhandler";
 import notFound from "./app/middlewares/notFound";
 import router from "./app/routes";
-// const requestIp = require('request-ip');
+import path from "path";
 
+import multer from "multer";
+
+// const requestIp = require('request-ip')
 const app: Application = express();
 
 // app.use(requestIp.mw());
@@ -25,6 +28,20 @@ app.use(
   })
 );
 
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/transactions");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1000)}`;
+    const fileExtension = path.extname(file.originalname);
+    cb(null, `transaction-${uniqueSuffix}${fileExtension}`);
+  },
+});
+
+
+export const upload = multer({ storage });
 
 
 // application routes

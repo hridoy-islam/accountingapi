@@ -4,6 +4,7 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import { transactionValidation } from "./transaction.validation";
 import { transactionControllers } from "./transaction.controller";
+
 import { upload } from "../../utils/multer";
 
 
@@ -13,11 +14,14 @@ const router = express.Router();
 router.post(
   "/",
   auth("admin", "user"),
+  // auth('admin'),
+  
+  // upload.single('transactionDoc'),
   validateRequest(transactionValidation.transactionSchema),
   transactionControllers.transactionCreate
 );
 
-router.post('/company/:companyId', upload.single('file'), transactionControllers.uploadCsv)
+// router.post('/company/:companyId', upload.single('file'), transactionControllers.uploadCsv)
 
 router.delete(
   "/:id",
@@ -28,7 +32,7 @@ router.delete(
 
 router.patch(
   "/:id",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   transactionControllers.transactionUpdate
 );
 
@@ -40,7 +44,7 @@ router.get(
 
 router.get(
   "/:id",
-  auth("admin", "user"),
+  auth('admin',"company"),
   transactionControllers.getOnetransaction
 )
 

@@ -250,13 +250,13 @@ const deleteTransactionFromDB = async (payload: any) => {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid ID format");
     }
 
-    // Check if the Transaction exists
+   
     const existingTransaction = await Transaction.findById(payload);
     if (!existingTransaction) {
-      throw new AppError(httpStatus.NOT_FOUND, "Transaction not found!");
+      throw new AppError(httpStatus.NOT_FOUND, "Transaciton not found!");
     }
 
-    // Delete the Transaction
+    
     const result = await Transaction.findByIdAndDelete(payload);
     if (!result) {
       throw new AppError(
