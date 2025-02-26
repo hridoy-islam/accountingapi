@@ -11,32 +11,32 @@ const router = express.Router();
 router.post(
   "/",
   // auth('admin'),
-  validateRequest(companyValidation.companySchema),
+  // validateRequest(companyValidation.companySchema),
   companyControllers.companyCreate
 );
 
 router.delete(
   "/:id",
-  // auth('admin'),
+  auth('admin'),
   // validateRequest(categoryValidation.categorySchema),
   companyControllers.companyDelete
 );
 
 router.patch(
   "/:id",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   companyControllers.companyUpdate
 );
 
 router.get(
   "/",
-  // auth("admin", "user"),
+  auth("admin", "user"),
   companyControllers.getAllcompanys
 );
 
 router.get(
   "/:id",
-  // auth('admin'),
+  auth('admin'),
   companyControllers.getOnecompany
 )
 

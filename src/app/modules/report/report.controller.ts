@@ -15,6 +15,7 @@ const getReport = catchAsync(async (req, res) => {
         statusCode: httpStatus.BAD_REQUEST,
         success: false,
         message: "Both startDate and endDate are required.",
+        data:null
       });
     }
   
@@ -27,6 +28,7 @@ const getReport = catchAsync(async (req, res) => {
         statusCode: httpStatus.BAD_REQUEST,
         success: false,
         message: "Invalid date format provided.",
+        data:null
       });
     }
   

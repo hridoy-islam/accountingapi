@@ -21,26 +21,26 @@ router.post(
 
 router.delete(
   "/:id",
-  // auth('admin'),
+  auth('admin'),
   validateRequest(transactionValidation.transactionSchema),
   transactionControllers.transactionDelete
 );
 
 router.patch(
   "/:id",
-  // auth("admin", "user"),
+  auth("admin", "user","company"),
   transactionControllers.transactionUpdate
 );
 
 router.get(
   "/",
-  // auth("admin", "user"),
+  auth("admin", "user","company"),
   transactionControllers.getAlltransactions
 );
 
 router.get(
   "/:id",
-  // auth('admin'),
+  auth('admin',"company"),
   transactionControllers.getOnetransaction
 )
 
