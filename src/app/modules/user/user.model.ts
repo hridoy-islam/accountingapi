@@ -66,6 +66,10 @@ const userSchema = new Schema<TUser, UserModel>(
       ref: "User",
       default: null,
     },
+    themeColor:{
+      type: String,
+      default:"#a78bfa"
+    }
   },
   {
     timestamps: true,

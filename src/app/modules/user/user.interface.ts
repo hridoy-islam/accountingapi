@@ -18,6 +18,7 @@ export interface TUser extends Document {
   otp?: string;
   otpExpiry ?: Date
   companyId?: Types.ObjectId;
+  themeColor?:string
   
   
 }
