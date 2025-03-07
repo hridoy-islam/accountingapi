@@ -295,6 +295,47 @@ const updateTransactionInDB = async (
   return result;
 };
 
+const getAllCompanyTransactionsFromDB = async (companyId:string, query: Record<string, unknown>) => {
+
+
+  // Initialize the dateFilter as an empty object
+  const { startDate, endDate, ...otherQueryParams}=query;
+
+  const dateFilter: Record<string, unknown> = {};
+  if (startDate) {
+    dateFilter['$gte'] = moment(startDate as string).startOf('day').toDate();
+  }
+  if (endDate) {
+    dateFilter['$lte'] = moment(endDate as string).endOf('day').toDate();
+  }
+
+  // Include the date filter only if there's a startDate or endDate
+  if (Object.keys(dateFilter).length > 0) {
+    otherQueryParams['transactionDate'] =dateFilter;}
+
+ 
+
+  // Build the query with the optional dateFilter applied
+  const userQuery = new QueryBuilder(
+    Transaction.find({companyId, isDeleted: false}).populate("storage transactionCategory transactionMethod"),
+    otherQueryParams
+  )
+    .search(transactionSearchableFields)
+    .filter() // This will handle other filters if any are applied
+    .sort()
+    .paginate()
+    .fields();
+    
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
+};
+
 // Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
 const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
 
@@ -347,6 +388,7 @@ export const TransactionServices = {
   deleteTransactionFromDB,
   updateTransactionInDB,
   getAllTransactionsFromDB,
+  getAllCompanyTransactionsFromDB,
   getOneTransactionFromDB,
   uploadCsvToDB
 };

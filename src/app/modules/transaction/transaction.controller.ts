@@ -33,7 +33,7 @@ const transactionDelete = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "transaction method deleted successfully",
+    message: "transaction  deleted successfully",
     data: result,
   });
 });
@@ -45,7 +45,7 @@ const transactionUpdate = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "transaction method updated successfully",
+    message: "transaction  updated successfully",
     data: result,
   });
 });
@@ -56,7 +56,7 @@ const getAlltransactions = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "transaction methods retrieved successfully",
+    message: "transaction  retrieved successfully",
     data: result,
   });
 });
@@ -67,10 +67,21 @@ const getOnetransaction = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "transaction method retrieved successfully",
+    message: "transaction  retrieved successfully",
     data: result,
   });
 });
+const getAllCompanytransactions= catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await TransactionServices.getAllCompanyTransactionsFromDB(id, req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "transaction  retrieved successfully",
+    data: result,
+  });
+});
+
 
 export const transactionControllers = {
   transactionCreate,
@@ -78,4 +89,5 @@ export const transactionControllers = {
   transactionUpdate,
   getAlltransactions,
   getOnetransaction,
+  getAllCompanytransactions
 };

@@ -23,7 +23,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     role: {
       type: String,
-      enum: ["user", "admin","company"],
+      enum: ["user", "admin","company","manager","administrator","audit"],
       default: "user",
     },
     status: {
@@ -44,6 +44,7 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     address: {
       type: String,
+      default:""
     },
     image: {
       type: String,

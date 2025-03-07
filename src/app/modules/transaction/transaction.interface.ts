@@ -11,5 +11,6 @@ export interface TTransaction {
   transactionMethod: string;
   storage: string;
   companyId: string;
+  isDeleted: boolean;
 
 }
