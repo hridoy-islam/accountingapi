@@ -34,13 +34,13 @@ router.get(
 
 router.get(
   "/company/:id",
-  // auth("admin", "company","user"),
+  auth("admin", "company","user"),
   InvoiceControllers.getAllCompanyInvoices
 );
 
 router.get(
   "/:id",
-  // auth("admin", "company"),
+  auth("admin", "company"),
   InvoiceControllers.getOneInvoice
 );
 
