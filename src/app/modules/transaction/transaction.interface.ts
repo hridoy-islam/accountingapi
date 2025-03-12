@@ -12,5 +12,4 @@ export interface TTransaction {
   storage: string;
   companyId: string;
   isDeleted: boolean;
-
 }
