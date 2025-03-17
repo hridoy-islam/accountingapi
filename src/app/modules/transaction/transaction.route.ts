@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   // auth('admin'),
   
   // upload.single('transactionDoc'),
