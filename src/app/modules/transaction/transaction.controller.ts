@@ -10,7 +10,30 @@ const transactionCreate = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "transaction method created successfully",
+    message: "transaction created successfully",
+    data: result,
+  });
+});
+
+const storeTransaction = catchAsync(async (req, res) => {
+  // Extract x-company-token from headers
+  const companyId = req.headers['x-company-token'];
+
+  if (!companyId) {
+    throw new Error("Company ID is missing in the headers");
+  }
+
+  // Create transaction using the extracted companyId
+  const result = await TransactionServices.createTransactionFromExternal(
+    req.body,
+    companyId
+  );
+
+  // Return success response
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Transaction created successfully",
     data: result,
   });
 });
@@ -89,5 +112,6 @@ export const transactionControllers = {
   transactionUpdate,
   getAlltransactions,
   getOnetransaction,
-  getAllCompanytransactions
+  getAllCompanytransactions,
+  storeTransaction
 };
