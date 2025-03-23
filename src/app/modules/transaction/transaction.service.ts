@@ -147,7 +147,7 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
 
 
 
-const createTransactionFromExternal = async (payload: any, companyId: string) => {
+const createTransactionFromExternal = async (payload: any, companyId: any) => {
   const {
     transactionType,
     invoiceDate,
