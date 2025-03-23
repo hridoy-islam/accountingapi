@@ -145,6 +145,65 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
   }
 };
 
+
+
+const createTransactionFromExternal = async (payload: any, companyId: string) => {
+  const {
+    transactionType,
+    invoiceDate,
+    invoiceNumber,
+    description,
+    transactionAmount,
+    transactionCategory,
+    transactionMethod,
+    storage,
+  } = payload;
+
+  // Validate company ID
+  if (!mongoose.Types.ObjectId.isValid(companyId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid company ID");
+  }
+
+  // Validate required fields
+  const requiredFields = [
+    "transactionType",
+    "invoiceDate",
+    "invoiceNumber",
+    "description",
+    "transactionAmount",
+    "transactionCategory",
+    "transactionMethod",
+    "storage",
+  ];
+  for (const field of requiredFields) {
+    if (!payload[field]) {
+      throw new AppError(httpStatus.BAD_REQUEST, `Missing required field: ${field}`);
+    }
+  }
+
+  const tcid = await generateUniqueTcid();
+  // Prepare the transaction data
+  const transactionData = {
+    tcid,
+    companyId,
+    transactionType,
+    invoiceDate: new Date(invoiceDate),
+    invoiceNumber,
+    description,
+    transactionAmount: parseFloat(transactionAmount),
+    transactionCategory,
+    transactionMethod,
+    storage,
+    transactionDate: new Date(), 
+  };
+
+  // Create and save the transaction
+  const transaction = new Transaction(transactionData);
+  await transaction.save();
+
+  return transaction;
+};
+
 const uploadCsvToDB = async (companyId: any, file: any) => {
   const filePath = file.path; // File path from multer
   const results: any[] = [];
@@ -169,7 +228,6 @@ const uploadCsvToDB = async (companyId: any, file: any) => {
 
     // Process each row
     for (const row of results) {
-      console.log('Processing row:', row); // Log each row for debugging
 
       const [category, method, storage] = await Promise.all([
         Category.findOne({ name: row.transactionCategory }).session(session),
@@ -238,6 +296,7 @@ const uploadCsvToDB = async (companyId: any, file: any) => {
     fs.unlinkSync(filePath); // Ensure the file is deleted after processing
   }
 };
+
 
 
 
@@ -390,5 +449,6 @@ export const TransactionServices = {
   getAllTransactionsFromDB,
   getAllCompanyTransactionsFromDB,
   getOneTransactionFromDB,
-  uploadCsvToDB
+  uploadCsvToDB,
+  createTransactionFromExternal
 };
