@@ -33,55 +33,6 @@ const generateUniqueTcid = async (): Promise<string> => {
   return uniqueTcid;
 };
 
-// const createTransactionIntoDB = async (payload: TTransaction) => {
-//   const session = await Transaction.startSession(); // Start a session for the transaction
-//   session.startTransaction();
-
-//   try {
-//     // Step 1: Generate unique tcid for the transaction
-//     const tcid = await generateUniqueTcid(); // Generate a unique tcid
-//     payload.tcid = tcid; // Assign the generated tcid to the payload
-
-//     // Step 2: Find the storage model by the provided storage ID in the payload
-//     const storage = await Storage.findById(payload.storage).session(session);
-//     if (!storage) {
-//       throw new AppError(httpStatus.NOT_FOUND, "Storage not found!");
-//     }
-
-//     // Step 3: Check the transactionType and adjust the openingBalance accordingly
-//     if (payload.transactionType === "inflow") {
-//       storage.openingBalance += payload.transactionAmount; // Inflow increases the balance
-//     } else if (payload.transactionType === "outflow") {
-//       storage.openingBalance -= payload.transactionAmount; // Outflow decreases the balance
-//     }
-
-//     // Step 4: Save the updated storage balance within the transaction
-//     await storage.save({ session });
-
-//     // Step 5: Create and save the transaction within the transaction
-//     const result = await Transaction.create([payload], { session });
-
-//     // Step 6: Commit the transaction
-//     await session.commitTransaction();
-//     session.endSession();
-
-//     return result[0]; // Return the created transaction document
-//   } catch (error: any) {
-//     // If an error occurs, abort the transaction
-//     await session.abortTransaction();
-//     session.endSession();
-
-//     console.error("Error in createTransactionIntoDB:", error);
-//     // Throw the original error or wrap it with additional context
-//     if (error instanceof AppError) {
-//       throw error;
-//     }
-//     throw new AppError(
-//       httpStatus.INTERNAL_SERVER_ERROR,
-//       error.message || "Failed to create Transaction"
-//     );
-//   }
-// };
 
 export const createTransactionIntoDB = async (payload:any, session?: mongoose.ClientSession) => {
   let localSession: mongoose.ClientSession | null = null;
@@ -93,7 +44,7 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
       localSession.startTransaction();
     }
 
-    const activeSession = session || localSession; // Use the passed session or the newly started one
+    const activeSession = session || localSession;
 
     // Step 1: Generate unique tcid for the transaction
     const tcid = await generateUniqueTcid();
@@ -147,62 +98,7 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
 
 
 
-const createTransactionFromExternal = async (payload: any, companyId: string) => {
-  const {
-    transactionType,
-    invoiceDate,
-    invoiceNumber,
-    description,
-    transactionAmount,
-    transactionCategory,
-    transactionMethod,
-    storage,
-  } = payload;
 
-  // Validate company ID
-  if (!mongoose.Types.ObjectId.isValid(companyId)) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid company ID");
-  }
-
-  // Validate required fields
-  const requiredFields = [
-    "transactionType",
-    "invoiceDate",
-    "invoiceNumber",
-    "description",
-    "transactionAmount",
-    "transactionCategory",
-    "transactionMethod",
-    "storage",
-  ];
-  for (const field of requiredFields) {
-    if (!payload[field]) {
-      throw new AppError(httpStatus.BAD_REQUEST, `Missing required field: ${field}`);
-    }
-  }
-
-  const tcid = await generateUniqueTcid();
-  // Prepare the transaction data
-  const transactionData = {
-    tcid,
-    companyId,
-    transactionType,
-    invoiceDate: new Date(invoiceDate),
-    invoiceNumber,
-    description,
-    transactionAmount: parseFloat(transactionAmount),
-    transactionCategory,
-    transactionMethod,
-    storage,
-    transactionDate: new Date(), 
-  };
-
-  // Create and save the transaction
-  const transaction = new Transaction(transactionData);
-  await transaction.save();
-
-  return transaction;
-};
 
 const uploadCsvToDB = async (companyId: any, file: any) => {
   const filePath = file.path; // File path from multer
@@ -450,5 +346,4 @@ export const TransactionServices = {
   getAllCompanyTransactionsFromDB,
   getOneTransactionFromDB,
   uploadCsvToDB,
-  createTransactionFromExternal
 };

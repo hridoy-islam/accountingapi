@@ -7,7 +7,9 @@ import { categoryRoute } from "../modules/category/category.route";
 import { transactionRoute } from "../modules/transaction/transaction.route";
 import { companyRoute } from "../modules/company/company.route";
 import { reportRoute } from "../modules/report/report.route";
-import { invoiceRouter } from "../modules/invoice/invoice,route";
+import { invoiceRouter } from "../modules/invoice/invoice.route";
+import { CustomerRoutes } from "../modules/customer/customer.route";
+import { PendingTransactionRouter } from "../modules/pending-transaction/pending.route";
 
 const router = Router();
 
@@ -50,6 +52,14 @@ const moduleRoutes = [
   {
     path: '/invoice',
     route: invoiceRouter
+  },
+  {
+    path: '/customer',
+    route: CustomerRoutes
+  },
+  {
+    path: '/pending-transaction',
+    route: PendingTransactionRouter
   }
 ];
 

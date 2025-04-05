@@ -6,6 +6,7 @@ import QueryBuilder from "../../builder/QueryBuilder";
 import { invoiceSearchableFields } from "./invoice.constant";
 import { TInvoice } from "./invoice.interface";
 import Invoice from "./invoice.model";
+import moment from "moment";
 
 // Creates a new Invoice in the database
 const createInvoiceIntoDB = async (payload: TInvoice) => {
@@ -70,6 +71,7 @@ const updateInvoiceInDB = async (id: string, payload: Partial<TInvoice>) => {
 
 // Retrieves all Invoices from the database with filtering, sorting, and pagination
 const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
+
   const invoiceQuery = new QueryBuilder(Invoice.find(), query)
     .search(invoiceSearchableFields)
     .filter()
@@ -88,15 +90,57 @@ const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
 
 // Retrieves all Invoices for a specific company with filtering, sorting, and pagination
 const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<string, unknown>) => {
-  const invoiceQuery = new QueryBuilder(Invoice.find({ companyId }).populate("companyId"), query)
-    .search(invoiceSearchableFields)
+  const { fromDate, toDate, searchTerm, ...otherQueryParams } = query;
+
+  // Initialize base query with companyId and isDeleted
+  const baseQuery: any = { 
+    companyId,
+    isDeleted: false 
+  };
+
+  // Apply date filters directly to the base query
+  if (fromDate && toDate) {
+    baseQuery.invoiceDate = {
+      $gte: moment(fromDate).startOf('day').toDate(),
+      $lte: moment(toDate).endOf('day').toDate()
+    };
+  } else if (fromDate) {
+    baseQuery.invoiceDate = {
+      $gte: moment(fromDate).startOf('day').toDate()
+    };
+  } else if (toDate) {
+    baseQuery.invoiceDate = {
+      $lte: moment(toDate).endOf('day').toDate()
+    };
+  }
+
+  // Initialize QueryBuilder with the base query
+  const invoiceQuery = new QueryBuilder(
+    Invoice.find(baseQuery).populate("companyId","name").populate("customer"),
+    otherQueryParams
+  );
+
+  // Handle search term if provided
+  if (searchTerm) {
+    const searchTermStr = searchTerm.toString();
+    invoiceQuery.modelQuery = invoiceQuery.modelQuery.or([
+      { invoiceNumber: { $regex: searchTermStr, $options: 'i' } },
+      { details: { $regex: searchTermStr, $options: 'i' } },
+      { 'customer.name': { $regex: searchTermStr, $options: 'i' } },
+      { 'customer._id': searchTermStr }
+    ]);
+  }
+
+  // Apply other QueryBuilder methods
+  const finalQuery = invoiceQuery
     .filter()
     .sort()
     .paginate()
     .fields();
 
-  const meta = await invoiceQuery.countTotal();
-  const result = await invoiceQuery.modelQuery;
+  // Get results
+  const meta = await finalQuery.countTotal();
+  const result = await finalQuery.modelQuery;
 
   return {
     meta,

@@ -1,8 +1,8 @@
 import mongoose, { Types } from "mongoose";
 
-export interface TInvoice {
+export interface TPendingTransaction {
 
-  customer: Types.ObjectId;
+
   invoiceDate: Date;
   invoiceNumber: string;
   description: string;

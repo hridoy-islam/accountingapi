@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user"),
+  auth("admin", "user","company"),
   // auth('admin'),
   
   // upload.single('transactionDoc'),
@@ -21,10 +21,7 @@ router.post(
   transactionControllers.transactionCreate
 );
 
-router.post("/data/store", 
- 
-  transactionControllers.storeTransaction
-);
+
 
 // router.post('/company/:companyId', upload.single('file'), transactionControllers.uploadCsv)
 
