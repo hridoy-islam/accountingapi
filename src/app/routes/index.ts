@@ -10,6 +10,7 @@ import { reportRoute } from "../modules/report/report.route";
 import { invoiceRouter } from "../modules/invoice/invoice.route";
 import { CustomerRoutes } from "../modules/customer/customer.route";
 import { PendingTransactionRouter } from "../modules/pending-transaction/pending.route";
+import { CSVRouter } from "../modules/csv/csv.route";
 
 const router = Router();
 
@@ -52,6 +53,10 @@ const moduleRoutes = [
   {
     path: '/invoice',
     route: invoiceRouter
+  },
+  {
+    path: '/csv',
+    route: CSVRouter
   },
   {
     path: '/customer',

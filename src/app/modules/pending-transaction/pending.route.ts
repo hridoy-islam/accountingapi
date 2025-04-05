@@ -16,7 +16,6 @@ router.post(
 router.delete(
   "/:id",
   auth("admin","company"),
-  validateRequest(PendingTransactionValidation.pendingTransactionSchema),
   PendingTransactionControllers.deletePendingTransaction
 );
 
@@ -34,7 +33,7 @@ router.get(
 
 router.get(
   "/company/:id",
-  auth("admin", "company","user"),
+  // auth("admin", "company","user"),
   PendingTransactionControllers.getAllCompanyPendingTransactions
 );
 

@@ -1,47 +1,44 @@
 import express from "express";
-import { InvoiceControllers } from "./invoice.controller";
+import { CSVControllers } from "./csv.controller";
 import validateRequest from "../../middlewares/validateRequest";
 import auth from "../../middlewares/auth";
-import { invoiceValidation } from "./invoice.validation";
 
 const router = express.Router();
 
 router.post(
   "/",
   auth("admin", "user","company"),
-  validateRequest(invoiceValidation.invoiceSchema),
-  InvoiceControllers.createInvoice
+  CSVControllers.createCSV
 );
 
 router.delete(
   "/:id",
-  auth("admin","company"),
-  validateRequest(invoiceValidation.invoiceSchema),
-  InvoiceControllers.deleteInvoice
+  // auth("admin","company"),
+  CSVControllers.deleteCSV
 );
 
 router.patch(
   "/:id",
   auth("admin", "user", "company"),
-  InvoiceControllers.updateInvoice
+  CSVControllers.updateCSV
 );
 
 router.get(
   "/",
   auth("admin", "user", "company"),
-  InvoiceControllers.getAllInvoices
+  CSVControllers.getAllCSVs
 );
 
 router.get(
   "/company/:id",
   auth("admin", "company","user"),
-  InvoiceControllers.getAllCompanyInvoices
+  CSVControllers.getAllCompanyCSVs
 );
 
 router.get(
   "/:id",
   auth("admin", "company"),
-  InvoiceControllers.getOneInvoice
+  CSVControllers.getOneCSV
 );
 
-export const invoiceRouter = router;
+export const CSVRouter = router;

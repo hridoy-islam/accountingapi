@@ -140,13 +140,11 @@ const getAllPendingTransactionsFromDB = async (query: Record<string, unknown>) =
 const getAllCompanyPendingTransactionsFromDB = async (companyId: string, query: Record<string, unknown>) => {
   const { fromDate, toDate, searchTerm, ...otherQueryParams } = query;
 
-  // Initialize base query with companyId and isDeleted
   const baseQuery: any = { 
     companyId,
     isDeleted: false 
   };
 
-  // Apply date filters directly to the base query
   if (fromDate && toDate) {
     baseQuery.invoiceDate = {
       $gte: moment(fromDate).startOf('day').toDate(),
@@ -172,7 +170,7 @@ const getAllCompanyPendingTransactionsFromDB = async (companyId: string, query: 
   if (searchTerm) {
     const searchTermStr = searchTerm.toString();
     PendingTransactionQuery.modelQuery = PendingTransactionQuery.modelQuery.or([
-      { PendingTransactionNumber: { $regex: searchTermStr, $options: 'i' } },
+      { invoiceNumber: { $regex: searchTermStr, $options: 'i' } },
       { details: { $regex: searchTermStr, $options: 'i' } },
      
     ]);

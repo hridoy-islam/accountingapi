@@ -69,7 +69,6 @@ const updateInvoiceInDB = async (id: string, payload: Partial<TInvoice>) => {
   return result;
 };
 
-// Retrieves all Invoices from the database with filtering, sorting, and pagination
 const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
 
   const invoiceQuery = new QueryBuilder(Invoice.find(), query)
@@ -88,33 +87,29 @@ const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-// Retrieves all Invoices for a specific company with filtering, sorting, and pagination
 const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<string, unknown>) => {
   const { fromDate, toDate, searchTerm, ...otherQueryParams } = query;
 
-  // Initialize base query with companyId and isDeleted
   const baseQuery: any = { 
     companyId,
     isDeleted: false 
   };
 
-  // Apply date filters directly to the base query
   if (fromDate && toDate) {
-    baseQuery.invoiceDate = {
+    baseQuery.createdAt = {
       $gte: moment(fromDate).startOf('day').toDate(),
       $lte: moment(toDate).endOf('day').toDate()
     };
   } else if (fromDate) {
-    baseQuery.invoiceDate = {
+    baseQuery.createdAt = {
       $gte: moment(fromDate).startOf('day').toDate()
     };
   } else if (toDate) {
-    baseQuery.invoiceDate = {
+    baseQuery.createdAt = {
       $lte: moment(toDate).endOf('day').toDate()
     };
   }
 
-  // Initialize QueryBuilder with the base query
   const invoiceQuery = new QueryBuilder(
     Invoice.find(baseQuery).populate("companyId","name").populate("customer"),
     otherQueryParams
