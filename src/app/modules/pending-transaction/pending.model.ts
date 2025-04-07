@@ -1,19 +1,10 @@
 import mongoose, { Schema } from "mongoose";
-import { TInvoice } from "./invoice.interface";
+import { TPendingTransaction } from "./pending.interface";
 
-const InvoiceSchema = new Schema<TInvoice>(
+const pendingTransactionSchema = new Schema<TPendingTransaction>(
   {
-    invId:{
-      type: String,
-      required: true,
-      unique: true,
-    },
-
-    customer: {
-      type: Schema.Types.ObjectId,
-      ref: "Customer",
-      required: true,
-    },
+    
+  
     
     invoiceDate: {
       type: Date,
@@ -54,11 +45,6 @@ const InvoiceSchema = new Schema<TInvoice>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-
-    invDoc:{
-      type: String,
-      default:""
-    }
   },
   {
     timestamps: true,
@@ -66,6 +52,6 @@ const InvoiceSchema = new Schema<TInvoice>(
 );
 
 // Create the Invoice model
-const Invoice = mongoose.model<TInvoice>("Invoice", InvoiceSchema);
+const PendingTransaction = mongoose.model<TPendingTransaction>("Pending", pendingTransactionSchema);
 
-export default Invoice;
+export default PendingTransaction;

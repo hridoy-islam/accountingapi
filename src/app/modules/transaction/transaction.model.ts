@@ -18,11 +18,11 @@ const transactionSchema = new Schema(
     },
     invoiceNumber: {
       type: String,
-      default: null,
+  
     },
     invoiceDate: {
       type: Date,
-      default: null,
+      
     },
     details: {
       type: String,

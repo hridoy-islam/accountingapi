@@ -1,8 +1,8 @@
 import mongoose, { Types } from "mongoose";
 
-export interface TInvoice {
-  invId:string;
-  customer: Types.ObjectId;
+export interface TPendingTransaction {
+
+
   invoiceDate: Date;
   invoiceNumber: string;
   description: string;
@@ -12,5 +12,4 @@ export interface TInvoice {
   details?: string;
   isDeleted: boolean;
   companyId: Types.ObjectId;
-  invDoc?:string
 }

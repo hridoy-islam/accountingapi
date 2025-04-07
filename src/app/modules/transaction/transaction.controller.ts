@@ -15,28 +15,7 @@ const transactionCreate = catchAsync(async (req, res) => {
   });
 });
 
-const storeTransaction = catchAsync(async (req, res) => {
-  // Extract x-company-token from headers
-  const companyId = req.headers['x-company-token'];
 
-  if (!companyId) {
-    throw new Error("Company ID is missing in the headers");
-  }
-
-  // Create transaction using the extracted companyId
-  const result = await TransactionServices.createTransactionFromExternal(
-    req.body,
-    companyId
-  );
-
-  // Return success response
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Transaction created successfully",
-    data: result,
-  });
-});
 
 const uploadCsv = catchAsync(async (req, res) => {
   const { companyId } = req.params;
@@ -113,5 +92,5 @@ export const transactionControllers = {
   getAlltransactions,
   getOnetransaction,
   getAllCompanytransactions,
-  storeTransaction
+
 };

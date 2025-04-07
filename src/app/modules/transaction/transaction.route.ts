@@ -21,10 +21,7 @@ router.post(
   transactionControllers.transactionCreate
 );
 
-router.post("/data/store", 
- 
-  transactionControllers.storeTransaction
-);
+
 
 // router.post('/company/:companyId', upload.single('file'), transactionControllers.uploadCsv)
 

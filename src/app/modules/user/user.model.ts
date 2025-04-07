@@ -46,7 +46,7 @@ const userSchema = new Schema<TUser, UserModel>(
       type: String,
       default:""
     },
-    image: {
+    imageUrl: {
       type: String,
     },
     createdBy: {
@@ -69,23 +69,29 @@ const userSchema = new Schema<TUser, UserModel>(
     themeColor:{
       type: String,
       default:"#a78bfa"
-    }
+    },
+    sortCode: { type: String },
+    accountNo: { type: String },
+    beneficiary: { type: String },
+    refreshToken: {
+      type: String,
+      select:false
+    },
   },
   {
     timestamps: true,
   }
 );
 
-userSchema.pre("save", async function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
-  // hashing password and save into DB
+userSchema.pre("save", async function(next) {
+  // Only hash the password if it's being modified
+  if (this.isModified('password')) {
+    if (!this.password) {
+      return next(new Error("Password is required"));
+    }
 
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds)
-  );
-
+    this.password = await bcrypt.hash(this.password, 10);
+  }
   next();
 });
 
