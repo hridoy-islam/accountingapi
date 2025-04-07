@@ -8,7 +8,7 @@ import config from "../../config";
 import { createToken } from "./auth.utils";
 import { sendEmail } from "../../utils/sendEmail";
 
-const checkLogin = async (payload: TLogin, ipaddress: string) => {
+const checkLogin = async (payload: TLogin) => {
   try {
     const foundUser = await User.isUserExists(payload.email);
     if (!foundUser) {
@@ -21,18 +21,8 @@ const checkLogin = async (payload: TLogin, ipaddress: string) => {
       );
     }
 
-    if (!(await User.isPasswordMatched(payload.password, foundUser.password))) {
-      throw new AppError(httpStatus.FORBIDDEN, "Password does not match");
-    }
-
-
-    // // Check IP only if user is not an admin
-    // if (foundUser.role !== "admin") {
-    //   if (foundUser.ipaddress !== ipaddress) {
-    //     throw new AppError(httpStatus.FORBIDDEN, "IP address mismatch");
-    //   }
-    // }
-
+    if (!(await User.isPasswordMatched(payload?.password, foundUser?.password)))
+      throw new AppError(httpStatus.FORBIDDEN, "Password do not matched");
 
     const accessToken = jwt.sign(
       {
@@ -40,23 +30,94 @@ const checkLogin = async (payload: TLogin, ipaddress: string) => {
         email: foundUser?.email,
         name: foundUser?.name,
         role: foundUser?.role,
-        companyId:foundUser?.companyId
       },
       `${config.jwt_access_secret}`,
       {
-        expiresIn: "2 days",
+        expiresIn: "2m",
       }
     );
 
+    const refreshToken = jwt.sign(
+      {
+        _id: foundUser._id?.toString(),
+        email: foundUser?.email,
+        name: foundUser?.name,
+        role: foundUser?.role,
+      },
+      `${config.jwt_refresh_secret}`,
+       {
+        expiresIn: "2h", 
+      }
+    );
+    await User.updateOne({ _id: foundUser._id }, { refreshToken });
     return {
       accessToken,
-     
-      
+      refreshToken,
     };
   } catch (error) {
     throw new AppError(httpStatus.NOT_FOUND, "Details doesnt match");
   }
 };
+
+
+
+const refreshToken = async (token: string) => {
+  if (!token || typeof token !== "string") {
+    throw new AppError(httpStatus.BAD_REQUEST, "Refresh token is required and should be a valid string.");
+  }
+
+  // 🔥 Check if the token exists in the database
+  const foundUser = await User.findOne({ 
+    refreshToken: { $eq: token } });
+
+  
+
+  if (!foundUser) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid refresh token");
+  }
+
+  try {
+    const decoded = jwt.verify(token,  `${config.jwt_refresh_secret}`,);
+
+    // Generate new access token
+    const newAccessToken = jwt.sign(
+      {
+        _id: foundUser._id.toString(),
+        email: foundUser.email,
+        name: foundUser.name,
+        role: foundUser.role,
+      },
+      `${config.jwt_access_secret}`,
+      { expiresIn: "2m" }
+    );
+
+    // Generate new refresh token (optional rotation)
+    const newRefreshToken = jwt.sign(
+      {
+        _id: foundUser._id.toString(),
+        email: foundUser.email,
+        name: foundUser.name,
+        role: foundUser.role,
+      },
+      `${config.jwt_refresh_secret}`,
+      { expiresIn: "2h" }
+    );
+
+    foundUser.refreshToken = newRefreshToken;
+    await foundUser.save();
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
+  } catch (err) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid Refresh Token");
+  }
+};
+
+
+
+
 const createUserIntoDB = async (payload: TCreateUser) => {
   const user = await User.isUserExists(payload.email);
   if (user) {
@@ -120,4 +181,6 @@ export const AuthServices = {
   createUserIntoDB,
   resetPassword,
   forgetPassword,
+  refreshToken,
+
 };

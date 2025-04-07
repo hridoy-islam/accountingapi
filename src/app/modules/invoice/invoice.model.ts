@@ -3,7 +3,12 @@ import { TInvoice } from "./invoice.interface";
 
 const InvoiceSchema = new Schema<TInvoice>(
   {
-    
+    invId:{
+      type: String,
+      required: true,
+      unique: true,
+    },
+
     customer: {
       type: Schema.Types.ObjectId,
       ref: "Customer",
@@ -49,6 +54,11 @@ const InvoiceSchema = new Schema<TInvoice>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+
+    invDoc:{
+      type: String,
+      default:""
+    }
   },
   {
     timestamps: true,

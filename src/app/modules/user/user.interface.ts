@@ -13,12 +13,18 @@ export interface TUser extends Document {
   isDeleted: boolean;
   authroized: boolean;
   address?: string;
-  image?: string;
+  imageUrl?: string;
   createdBy: Types.ObjectId;
   otp?: string;
   otpExpiry ?: Date
   companyId?: Types.ObjectId;
-  themeColor?:string
+  themeColor?:string;
+  sortCode: string;
+ accountNo: string;
+ beneficiary:string;
+  refreshToken: String,
+   
+  
   
   
 }

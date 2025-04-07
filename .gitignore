@@ -6,6 +6,9 @@
 .pnp.js
 .yarn/install-state.gz
 
+work.json
+.env
+
 # testing
 /coverage
 # send readme.md inside of dist folder to github and do not send the rest of the files

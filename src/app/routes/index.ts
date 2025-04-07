@@ -11,6 +11,7 @@ import { invoiceRouter } from "../modules/invoice/invoice.route";
 import { CustomerRoutes } from "../modules/customer/customer.route";
 import { PendingTransactionRouter } from "../modules/pending-transaction/pending.route";
 import { CSVRouter } from "../modules/csv/csv.route";
+import { UploadDocumentRoutes } from "../modules/documents/documents.route";
 
 const router = Router();
 
@@ -65,6 +66,11 @@ const moduleRoutes = [
   {
     path: '/pending-transaction',
     route: PendingTransactionRouter
+  },
+
+  {
+    path: '/documents',
+    route: UploadDocumentRoutes
   }
 ];
 

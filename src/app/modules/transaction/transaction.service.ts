@@ -16,22 +16,29 @@ const path = require('path');
 
 const generateUniqueTcid = async (): Promise<string> => {
   const prefix = "TC";
-  let uniqueTcid;
-  let existingTransaction;
+  const now = new Date();
 
-  // Retry logic to generate a unique tcid
-  while (true) {
-    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random 6-digit number
-    uniqueTcid = `${prefix}${randomNumber.toString().padStart(6, "0")}`;
+  // Format date as YYYYMMDD
+  const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
 
-    existingTransaction = await Transaction.findOne({ tcid: uniqueTcid });
-    if (!existingTransaction) {
-      break;
-    }
+  // Find the latest transaction for today's date
+  const latestTransaction = await Transaction.findOne({ tcid: { $regex: `^${prefix}${dateStr}` } })
+    .sort({ tcid: -1 }) // Sort in descending order
+    .limit(1);
+
+  let increment = 1;
+  if (latestTransaction) {
+    const lastTcid = latestTransaction.tcid;
+    const lastIncrement = parseInt(lastTcid.slice(-4), 10);
+    increment = lastIncrement + 1;
   }
+
+  const incrementStr = increment.toString().padStart(4, "0");
+  const uniqueTcid = `${prefix}${dateStr}${incrementStr}`;
 
   return uniqueTcid;
 };
+
 
 
 export const createTransactionIntoDB = async (payload:any, session?: mongoose.ClientSession) => {

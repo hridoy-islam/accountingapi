@@ -12,6 +12,11 @@ router.post(
   AuthControllers.login
 );
 router.post(
+  '/refreshToken',
+  AuthControllers.refreshToken
+);
+
+router.post(
   "/signup",
   validateRequest(AuthValidations.createUserValidationSchema),
   AuthControllers.createUser

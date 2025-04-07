@@ -8,10 +8,35 @@ import { TInvoice } from "./invoice.interface";
 import Invoice from "./invoice.model";
 import moment from "moment";
 
+
+const generateUniqueInvId = async (): Promise<string> => {
+  const prefix = "INV";
+  const now = new Date();
+
+  const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
+
+  // Find the latest invoice with today's date
+  const latestInvoice = await Invoice.findOne({ invId: { $regex: `^${prefix}${dateStr}` } })
+    .sort({ invId: -1 })
+    .limit(1);
+
+  let increment = 1;
+  if (latestInvoice) {
+    const lastInvId = latestInvoice.invId;
+    const lastIncrement = parseInt(lastInvId.slice(-4), 10);
+    increment = lastIncrement + 1;
+  }
+
+  const incrementStr = increment.toString().padStart(4, "0");
+  return `${prefix}${dateStr}${incrementStr}`;
+};
+
+
 // Creates a new Invoice in the database
 const createInvoiceIntoDB = async (payload: TInvoice) => {
   try {
-    const result = await Invoice.create(payload);
+    const uniqueInvId = await generateUniqueInvId();
+    const result = await Invoice.create({ ...payload, invId: uniqueInvId });
     return result;
   } catch (error: any) {
     console.error("Error in createInvoiceIntoDB:", error);
@@ -23,6 +48,7 @@ const createInvoiceIntoDB = async (payload: TInvoice) => {
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Invoice");
   }
 };
+
 
 // Deletes an Invoice from the database by ID
 const deleteInvoiceFromDB = async (id: string) => {
@@ -111,7 +137,7 @@ const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<stri
   }
 
   const invoiceQuery = new QueryBuilder(
-    Invoice.find(baseQuery).populate("companyId","name").populate("customer"),
+    Invoice.find(baseQuery).populate("companyId").populate("customer"),
     otherQueryParams
   );
 
@@ -120,6 +146,7 @@ const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<stri
     const searchTermStr = searchTerm.toString();
     invoiceQuery.modelQuery = invoiceQuery.modelQuery.or([
       { invoiceNumber: { $regex: searchTermStr, $options: 'i' } },
+      { invId: { $regex: searchTermStr, $options: 'i' } },
       { details: { $regex: searchTermStr, $options: 'i' } },
       { 'customer.name': { $regex: searchTermStr, $options: 'i' } },
       { 'customer._id': searchTermStr }
