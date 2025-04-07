@@ -33,7 +33,7 @@ const checkLogin = async (payload: TLogin) => {
       },
       `${config.jwt_access_secret}`,
       {
-        expiresIn: "2m",
+        expiresIn: "2h",
       }
     );
 
@@ -46,7 +46,7 @@ const checkLogin = async (payload: TLogin) => {
       },
       `${config.jwt_refresh_secret}`,
        {
-        expiresIn: "2h", 
+        expiresIn: "4h", 
       }
     );
     await User.updateOne({ _id: foundUser._id }, { refreshToken });
@@ -88,7 +88,7 @@ const refreshToken = async (token: string) => {
         role: foundUser.role,
       },
       `${config.jwt_access_secret}`,
-      { expiresIn: "2m" }
+      { expiresIn: "2h" }
     );
 
     // Generate new refresh token (optional rotation)
@@ -100,7 +100,7 @@ const refreshToken = async (token: string) => {
         role: foundUser.role,
       },
       `${config.jwt_refresh_secret}`,
-      { expiresIn: "2h" }
+      { expiresIn: "4h" }
     );
 
     foundUser.refreshToken = newRefreshToken;
