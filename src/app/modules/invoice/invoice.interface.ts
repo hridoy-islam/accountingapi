@@ -1,16 +1,26 @@
 import mongoose, { Types } from "mongoose";
 
+export interface InvoiceItem {
+  details: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
 export interface TInvoice {
-  invId:string;
+  invId: string;
   customer: Types.ObjectId;
-  invoiceDate: Date;
+  invoiceDate: Date | string;
   invoiceNumber: string;
-  description: string;
+  description?: string;
   status: "due" | "paid";
   transactionType: "inflow" | "outflow";
   amount: number;
-  details?: string;
   isDeleted: boolean;
   companyId: Types.ObjectId;
-  invDoc?:string
+  invDoc?: string;
+
+  notes?: string;
+  termsAndConditions?: string;
+  items: InvoiceItem[];
 }

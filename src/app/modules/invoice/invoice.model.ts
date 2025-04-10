@@ -1,31 +1,54 @@
 import mongoose, { Schema } from "mongoose";
 import { TInvoice } from "./invoice.interface";
 
+// Define the sub-schema for invoice items
+const InvoiceItemSchema = new Schema(
+  {
+    details: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    rate: {
+      type: Number,
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+  }
+);
+
+// Define the main invoice schema
 const InvoiceSchema = new Schema<TInvoice>(
   {
-    invId:{
+    invId: {
       type: String,
       required: true,
       unique: true,
     },
-
     customer: {
       type: Schema.Types.ObjectId,
       ref: "Customer",
       required: true,
     },
-    
     invoiceDate: {
       type: Date,
-      required: true,
+      
     },
+  
     invoiceNumber: {
       type: String,
-      required: true,
-      unique: true,
+      
+      
     },
     description: {
-      type: String
+      type: String,
+      default: "",
     },
     status: {
       type: String,
@@ -42,10 +65,6 @@ const InvoiceSchema = new Schema<TInvoice>(
       type: Number,
       required: true,
     },
-    details: {
-      type: String,
-      default: null,
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -53,19 +72,33 @@ const InvoiceSchema = new Schema<TInvoice>(
     companyId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
-
-    invDoc:{
+    invDoc: {
       type: String,
-      default:""
-    }
+      default: "",
+    },
+  
+    notes: {
+      type: String,
+      default: "",
+    },
+    termsAndConditions: {
+      type: String,
+      default: "",
+    },
+  
+    items: {
+      type: [InvoiceItemSchema],
+      required: true,
+      default: [],
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Create the Invoice model
 const Invoice = mongoose.model<TInvoice>("Invoice", InvoiceSchema);
 
 export default Invoice;

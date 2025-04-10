@@ -8,39 +8,39 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   validateRequest(invoiceValidation.invoiceSchema),
   InvoiceControllers.createInvoice
 );
 
 router.delete(
   "/:id",
-  auth("admin","company"),
+  auth("admin", "user","company","manager","audit"),
   validateRequest(invoiceValidation.invoiceSchema),
   InvoiceControllers.deleteInvoice
 );
 
 router.patch(
   "/:id",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   InvoiceControllers.updateInvoice
 );
 
 router.get(
   "/",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   InvoiceControllers.getAllInvoices
 );
 
 router.get(
   "/company/:id",
-  auth("admin", "company","user"),
+  auth("admin", "user","company","manager","audit"),
   InvoiceControllers.getAllCompanyInvoices
 );
 
 router.get(
   "/:id",
-  auth("admin", "company"),
+  auth("admin", "user","company","manager","audit"),
   InvoiceControllers.getOneInvoice
 );
 

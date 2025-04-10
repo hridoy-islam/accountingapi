@@ -8,23 +8,23 @@ import { CustomerControllers } from "./customer.controller";
 const router = express.Router();
 router.get(
   "/",
-  auth("admin", "company", "user"),
+  auth("admin", "user","company","manager","audit"),
   CustomerControllers.getAllCustomer
 );
 router.post(
   "/",
-  auth("admin", "company", "user"),
+  auth("admin", "user","company","manager","audit"),
   CustomerControllers.CustomerCreate
 );
 router.get(
   "/:id",
-  auth("admin", "company", "user"),
+  auth("admin", "user","company","manager","audit"),
   CustomerControllers.getSingleCustomer
 );
 
 router.patch(
   "/:id",
-  auth("admin", "company", "user"),
+  auth("admin", "user","company","manager","audit"),
   CustomerControllers.updateCustomer
 );
 

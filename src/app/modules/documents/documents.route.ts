@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  // auth("admin", "agent", "staff"),
+  auth("admin", "user","company","manager","audit"),
   upload.single('file'),
   UploadDocumentController.UploadDocument
 );

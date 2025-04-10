@@ -11,38 +11,38 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   validateRequest(transactionMethodValidation.transactionMethodSchema),
   transactionMethodControllers.transactionMethodCreate
 );
 
 router.delete(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionMethodControllers.transactionMethodDelete
 );
 
 router.patch(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionMethodControllers.transactionMethodUpdate
 );
 
 router.get(
   "/",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionMethodControllers.getAllMethods
 );
 
 router.get(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionMethodControllers.getOneMethod
 )
 
 router.get(
   "/company/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionMethodControllers.getAllCompanyMethods
 )
 

@@ -13,8 +13,8 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user","company"),
-  // auth('admin'),
+  auth("admin", "user","company","manager","audit"),
+
   
   // upload.single('transactionDoc'),
   validateRequest(transactionValidation.transactionSchema),
@@ -34,18 +34,18 @@ router.delete(
 
 router.patch(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionControllers.transactionUpdate
 );
 
 router.get(
   "/",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionControllers.getAlltransactions
 );
 router.get(
   "/company/:id",
-  // auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   transactionControllers.getAllCompanytransactions
 );
 

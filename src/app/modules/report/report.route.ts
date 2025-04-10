@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get(
   "/company/:id",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   reportControllers.getReport
 );
 

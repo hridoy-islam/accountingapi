@@ -30,6 +30,7 @@ const checkLogin = async (payload: TLogin) => {
         email: foundUser?.email,
         name: foundUser?.name,
         role: foundUser?.role,
+        companyId: foundUser?.companyId,
       },
       `${config.jwt_access_secret}`,
       {
@@ -43,6 +44,7 @@ const checkLogin = async (payload: TLogin) => {
         email: foundUser?.email,
         name: foundUser?.name,
         role: foundUser?.role,
+        companyId: foundUser?.companyId,
       },
       `${config.jwt_refresh_secret}`,
        {
@@ -86,6 +88,7 @@ const refreshToken = async (token: string) => {
         email: foundUser.email,
         name: foundUser.name,
         role: foundUser.role,
+        companyId: foundUser?.companyId,
       },
       `${config.jwt_access_secret}`,
       { expiresIn: "4d" }
@@ -98,6 +101,7 @@ const refreshToken = async (token: string) => {
         email: foundUser.email,
         name: foundUser.name,
         role: foundUser.role,
+        companyId: foundUser?.companyId,
       },
       `${config.jwt_refresh_secret}`,
       { expiresIn: "7d" }

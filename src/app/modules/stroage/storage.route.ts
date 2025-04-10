@@ -11,37 +11,37 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   validateRequest(storageValidation.storageSchema),
   storageControllers.storageCreate
 );
 
 router.delete(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   storageControllers.storageDelete
 );
 
 router.patch(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   storageControllers.storageUpdate
 );
 
 router.get(
   "/",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   storageControllers.getAllStorages
 );
 router.get(
   "/company/:id",
-  // auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   storageControllers.getCompanyStorage
 );
 
 router.get(
   "/:id",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   storageControllers.getOneStorage
 )
 

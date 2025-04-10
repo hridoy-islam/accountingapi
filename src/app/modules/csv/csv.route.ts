@@ -7,37 +7,37 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   CSVControllers.createCSV
 );
 
 router.delete(
   "/:id",
-  // auth("admin","company"),
+  auth("admin", "user","company","manager","audit"),
   CSVControllers.deleteCSV
 );
 
 router.patch(
   "/:id",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   CSVControllers.updateCSV
 );
 
 router.get(
   "/",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   CSVControllers.getAllCSVs
 );
 
 router.get(
   "/company/:id",
-  auth("admin", "company","user"),
+  auth("admin", "user","company","manager","audit"),
   CSVControllers.getAllCompanyCSVs
 );
 
 router.get(
   "/:id",
-  auth("admin", "company"),
+  auth("admin", "user","company","manager","audit"),
   CSVControllers.getOneCSV
 );
 

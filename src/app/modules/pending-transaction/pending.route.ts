@@ -8,38 +8,38 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth("admin", "user","company"),
+  auth("admin", "user","company","manager","audit"),
   validateRequest(PendingTransactionValidation.pendingTransactionSchema),
   PendingTransactionControllers.createPendingTransaction
 );
 
 router.delete(
   "/:id",
-  auth("admin","company"),
+  auth("admin", "user","company","manager","audit"),
   PendingTransactionControllers.deletePendingTransaction
 );
 
 router.patch(
   "/:id",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   PendingTransactionControllers.updatePendingTransaction
 );
 
 router.get(
   "/",
-  auth("admin", "user", "company"),
+  auth("admin", "user","company","manager","audit"),
   PendingTransactionControllers.getAllPendingTransactions
 );
 
 router.get(
   "/company/:id",
-  // auth("admin", "company","user"),
+  auth("admin", "user","company","manager","audit"),
   PendingTransactionControllers.getAllCompanyPendingTransactions
 );
 
 router.get(
   "/:id",
-  auth("admin", "company"),
+  auth("admin", "user","company","manager","audit"),
   PendingTransactionControllers.getOnePendingTransaction
 );
 
