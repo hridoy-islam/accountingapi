@@ -137,7 +137,7 @@ const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<stri
   }
 
   const invoiceQuery = new QueryBuilder(
-    Invoice.find(baseQuery).populate("companyId").populate("customer"),
+    Invoice.find(baseQuery).populate("companyId").populate("customer").populate("bank"),
     otherQueryParams
   );
 

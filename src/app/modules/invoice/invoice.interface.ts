@@ -5,6 +5,7 @@ export interface InvoiceItem {
   quantity: number;
   rate: number;
   amount: number;
+
 }
 
 export interface TInvoice {
@@ -12,6 +13,7 @@ export interface TInvoice {
   customer: Types.ObjectId;
   invoiceDate: Date | string;
   invoiceNumber: string;
+  bank: Types.ObjectId;
   description?: string;
   status: "due" | "paid";
   transactionType: "inflow" | "outflow";
@@ -19,8 +21,12 @@ export interface TInvoice {
   isDeleted: boolean;
   companyId: Types.ObjectId;
   invDoc?: string;
-
   notes?: string;
   termsAndConditions?: string;
   items: InvoiceItem[];
+  tax?: number;
+  discount?: number;
+  subtotal: number;
+  discountType?: "percentage" | "flat";
+  total: number;
 }

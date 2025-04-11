@@ -20,10 +20,12 @@ const InvoiceItemSchema = new Schema(
       type: Number,
       required: true,
     },
+   
+   
+
   }
 );
 
-// Define the main invoice schema
 const InvoiceSchema = new Schema<TInvoice>(
   {
     invId: {
@@ -38,14 +40,17 @@ const InvoiceSchema = new Schema<TInvoice>(
     },
     invoiceDate: {
       type: Date,
-      
     },
   
     invoiceNumber: {
       type: String,
-      
-      
     },
+    bank:{
+      type: Schema.Types.ObjectId,
+      ref: "Bank",
+      required: true
+    },
+
     description: {
       type: String,
       default: "",
@@ -93,6 +98,27 @@ const InvoiceSchema = new Schema<TInvoice>(
       required: true,
       default: [],
     },
+    tax:{
+      type: Number,
+      default: 0
+    },
+    discount:{
+      type: Number,
+      default: 0
+    },
+    subtotal:{
+      type: Number,
+      default: 0
+    },
+    discountType:{
+      type: String,
+      enum: ["percentage", "flat"],
+      default: "",
+    },
+    total:{
+      type: Number,
+      default: 0
+    }
   },
   {
     timestamps: true,
