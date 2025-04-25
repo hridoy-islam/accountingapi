@@ -64,14 +64,15 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
     }
 
     // Step 3: Adjust the storage balance based on the transaction type
-    if (payload.transactionType === 'inflow') {
-      storage.openingBalance += payload.transactionAmount;
-    } else if (payload.transactionType === 'outflow') {
-      storage.openingBalance -= payload.transactionAmount;
-    }
-
-    // Step 4: Save the updated storage balance
-    await storage.save({ session: activeSession });
+    const update = payload.transactionType === 'inflow'
+    ? { $inc: { openingBalance: payload.transactionAmount } }
+    : { $inc: { openingBalance: -payload.transactionAmount } };
+  
+  await Storage.findByIdAndUpdate(
+    payload.storage,
+    update,
+    { session: activeSession, new: true }
+  );
 
     // Step 5: Create and save the transaction document
     const result = await Transaction.create([payload], { session: activeSession });
