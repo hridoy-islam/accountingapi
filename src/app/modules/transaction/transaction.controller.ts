@@ -83,6 +83,16 @@ const getAllCompanytransactions= catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getyearlyCompanytransactions= catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await TransactionServices.getYearlyCompanyTransactionsFromDB(id, req.query);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "transaction  retrieved successfully",
+    data: result,
+  });
+});
 
 
 export const transactionControllers = {
@@ -92,5 +102,6 @@ export const transactionControllers = {
   getAlltransactions,
   getOnetransaction,
   getAllCompanytransactions,
+  getyearlyCompanytransactions
 
 };

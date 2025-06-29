@@ -105,7 +105,46 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
 };
 
 
+// Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
+const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
 
+
+  // Initialize the dateFilter as an empty object
+  const { startDate, endDate, ...otherQueryParams}=query;
+
+  const dateFilter: Record<string, unknown> = {};
+  if (startDate) {
+    dateFilter['$gte'] = moment(startDate as string).startOf('day').toDate();
+  }
+  if (endDate) {
+    dateFilter['$lte'] = moment(endDate as string).endOf('day').toDate();
+  }
+
+  // Include the date filter only if there's a startDate or endDate
+  if (Object.keys(dateFilter).length > 0) {
+    otherQueryParams['transactionDate'] =dateFilter;}
+
+ 
+
+  // Build the query with the optional dateFilter applied
+  const userQuery = new QueryBuilder(
+    Transaction.find().populate("storage transactionCategory transactionMethod"),
+    otherQueryParams
+  )
+    .search(transactionSearchableFields)
+    .filter(query) // This will handle other filters if any are applied
+    .sort()
+    .paginate()
+    .fields();
+
+  const meta = await userQuery.countTotal();
+  const result = await userQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
+};
 
 
 const uploadCsvToDB = async (companyId: any, file: any) => {
@@ -284,7 +323,7 @@ const getAllCompanyTransactionsFromDB = async (companyId:string, query: Record<s
     otherQueryParams
   )
     .search(transactionSearchableFields)
-    .filter() // This will handle other filters if any are applied
+    .filter(query) // This will handle other filters if any are applied
     .sort()
     .paginate()
     .fields();
@@ -299,46 +338,83 @@ const getAllCompanyTransactionsFromDB = async (companyId:string, query: Record<s
   };
 };
 
-// Retrieves all  Transactions from the database with support for filtering, sorting, and pagination
-const getAllTransactionsFromDB = async (query: Record<string, unknown>) => {
 
 
-  // Initialize the dateFilter as an empty object
-  const { startDate, endDate, ...otherQueryParams}=query;
+const getYearlyCompanyTransactionsFromDB = async (
+  companyId: string,
+  query: { year: number }
+) => {
+  const { year } = query;
 
-  const dateFilter: Record<string, unknown> = {};
-  if (startDate) {
-    dateFilter['$gte'] = moment(startDate as string).startOf('day').toDate();
-  }
-  if (endDate) {
-    dateFilter['$lte'] = moment(endDate as string).endOf('day').toDate();
+  if (!year || isNaN(year)) {
+    throw new Error("Invalid or missing year.");
   }
 
-  // Include the date filter only if there's a startDate or endDate
-  if (Object.keys(dateFilter).length > 0) {
-    otherQueryParams['transactionDate'] =dateFilter;}
+  const startOfYear = moment().year(year).startOf("year").toDate();
+  const endOfYear = moment().year(year).endOf("year").toDate();
 
- 
+  const aggregationPipeline = [
+  {
+    $match: {
+      companyId: new mongoose.Types.ObjectId(companyId),
+      isDeleted: false,
+      transactionDate: {
+        $gte: startOfYear,
+        $lte: endOfYear,
+      },
+    },
+  },
+  {
+    $project: {
+      transactionAmount: 1,
+      transactionType: 1,
+      month: { $month: "$transactionDate" },
+    },
+  },
+  {
+    $group: {
+      _id: "$month",
+      totalInflow: {
+        $sum: {
+          $cond: [
+            { $eq: ["$transactionType", "inflow"] },
+            "$transactionAmount",
+            0,
+          ],
+        },
+      },
+      totalOutflow: {
+        $sum: {
+          $cond: [
+            { $eq: ["$transactionType", "outflow"] },
+            "$transactionAmount",
+            0,
+          ],
+        },
+      },
+    },
+  },
+  {
+    $sort: { _id: 1 },
+  },
+];
 
-  // Build the query with the optional dateFilter applied
-  const userQuery = new QueryBuilder(
-    Transaction.find().populate("storage transactionCategory transactionMethod"),
-    otherQueryParams
-  )
-    .search(transactionSearchableFields)
-    .filter() // This will handle other filters if any are applied
-    .sort()
-    .paginate()
-    .fields();
 
-  const meta = await userQuery.countTotal();
-  const result = await userQuery.modelQuery;
+  const monthlyTotals = await Transaction.aggregate(aggregationPipeline);
 
-  return {
-    meta,
-    result,
-  };
+  // Fill in months with 0s if missing
+  const fullYearData = Array.from({ length: 12 }, (_, i) => {
+    const monthData = monthlyTotals.find((m) => m._id === i + 1);
+    return {
+      month: i + 1,
+      totalInflow: monthData?.totalInflow || 0,
+      totalOutflow: monthData?.totalOutflow || 0,
+    };
+  });
+
+  return fullYearData;
 };
+
 
 // Retrieves a single  Transaction from the database by ID
 const getOneTransactionFromDB = async (id: string) => {
@@ -354,4 +430,5 @@ export const TransactionServices = {
   getAllCompanyTransactionsFromDB,
   getOneTransactionFromDB,
   uploadCsvToDB,
+  getYearlyCompanyTransactionsFromDB
 };

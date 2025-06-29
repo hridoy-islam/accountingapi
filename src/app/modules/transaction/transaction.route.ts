@@ -48,6 +48,11 @@ router.get(
   auth("admin", "user","company","manager","audit"),
   transactionControllers.getAllCompanytransactions
 );
+router.get(
+  "/company-transaction/:id",
+  auth("admin", "user","company","manager","audit"),
+  transactionControllers.getyearlyCompanytransactions
+);
 
 router.get(
   "/:id",
