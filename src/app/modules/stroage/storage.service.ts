@@ -11,11 +11,7 @@ import Transaction from "../transaction/transaction.model";
 const createStorageIntoDB = async (payload: TStorage) => {
   try {
     // Check if the Storage name already exists
-    const existingStorage= await Storage.findOne({ storageName: payload.storageName });
-    if (existingStorage) {
-      throw new AppError(httpStatus.CONFLICT, "This storage name already exists!");
-    }
-
+    
     // Create and save the Storage
     const result = await Storage.create(payload);
     return result;

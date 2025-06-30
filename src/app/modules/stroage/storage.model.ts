@@ -4,7 +4,7 @@ import { TStorage } from './storage.interface';
 
 
 const storageSchema = new Schema({
-  storageName: { type: String, required: true, unique: true,  },
+  storageName: { type: String, required: true,   },
   openingBalance: { type: Number, required: true, default: 0 },
   currentBalance: { type: Number, required: true, default: 0 },
   openingDate: { type: Date, required: true },
