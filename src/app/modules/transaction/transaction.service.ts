@@ -58,21 +58,21 @@ export const createTransactionIntoDB = async (payload:any, session?: mongoose.Cl
     payload.tcid = tcid;
 
     // Step 2: Find the storage model by the provided storage ID in the payload
-    const storage = await Storage.findById(payload.storage).session(activeSession);
-    if (!storage) {
-      throw new AppError(httpStatus.NOT_FOUND, 'Storage not found!');
-    }
+    // const storage = await Storage.findById(payload.storage).session(activeSession);
+    // if (!storage) {
+    //   throw new AppError(httpStatus.NOT_FOUND, 'Storage not found!');
+    // }
 
     // Step 3: Adjust the storage balance based on the transaction type
-    const update = payload.transactionType === 'inflow'
-    ? { $inc: { openingBalance: payload.transactionAmount } }
-    : { $inc: { openingBalance: -payload.transactionAmount } };
+  //   const update = payload.transactionType === 'inflow'
+  //   ? { $inc: { openingBalance: payload.transactionAmount } }
+  //   : { $inc: { openingBalance: -payload.transactionAmount } };
   
-  await Storage.findByIdAndUpdate(
-    payload.storage,
-    update,
-    { session: activeSession, new: true }
-  );
+  // await Storage.findByIdAndUpdate(
+  //   payload.storage,
+  //   update,
+  //   { session: activeSession, new: true }
+  // );
 
     // Step 5: Create and save the transaction document
     const result = await Transaction.create([payload], { session: activeSession });

@@ -5,12 +5,13 @@ import { TStorage } from "./storage.interface";
 import Storage from "./storage.model";
 import QueryBuilder from "../../builder/QueryBuilder";
 import { storageSearchableFields } from "./storage.constant";
+import Transaction from "../transaction/transaction.model";
 
 // Creates a new transaction Storage in the database after validating for duplicates
 const createStorageIntoDB = async (payload: TStorage) => {
   try {
     // Check if the Storage name already exists
-    const existingStorage= await Storage.findOne({ name: payload.storageName });
+    const existingStorage= await Storage.findOne({ storageName: payload.storageName });
     if (existingStorage) {
       throw new AppError(httpStatus.CONFLICT, "This storage name already exists!");
     }
@@ -78,7 +79,7 @@ const updateStorageInDB = async (id: string, payload: Partial<TStorage>) => {
 const getAllStoragesFromDB = async (query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(Storage.find().populate('companyId'), query)
     .search(storageSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -91,20 +92,112 @@ const getAllStoragesFromDB = async (query: Record<string, unknown>) => {
     result,
   };
 };
-const getAllCompanyStoragesFromDB = async (companyId:string,query: Record<string, unknown>) => {
-  const userQuery = new QueryBuilder(Storage.find({companyId}).populate('companyId'), query)
+
+const getAllCompanyStoragesFromDB = async (
+  companyId: string,
+  query: Record<string, unknown>
+) => {
+  // Validate companyId
+  if (!mongoose.Types.ObjectId.isValid(companyId)) {
+    throw new Error('Invalid company ID');
+  }
+
+  const companyObjectId = new mongoose.Types.ObjectId(companyId);
+
+  // Create query for storages
+  const userQuery = new QueryBuilder(
+    Storage.find({ companyId: companyObjectId })
+      .populate({
+        path: 'companyId',
+        select: 'name' 
+      }),
+    query
+  )
     .search(storageSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
 
   const meta = await userQuery.countTotal();
-  const result = await userQuery.modelQuery;
+  const storages = await userQuery.modelQuery;
+
+  // If no storages found, return early
+  if (storages.length === 0) {
+    return {
+      meta,
+      result: []
+    };
+  }
+
+  const storageIds = storages.map(storage => storage._id);
+
+  // Fetch all transactions for these storages
+  const transactions = await Transaction.aggregate([
+    {
+      $match: {
+        storage: { $in: storageIds },
+        companyId: companyObjectId,
+        isDeleted: false
+      }
+    },
+    {
+      $group: {
+        _id: '$storage',
+        inflow: {
+          $sum: {
+            $cond: [{ $eq: ['$transactionType', 'inflow'] }, '$transactionAmount', 0]
+          }
+        },
+        outflow: {
+          $sum: {
+            $cond: [{ $eq: ['$transactionType', 'outflow'] }, '$transactionAmount', 0]
+          }
+        }
+      }
+    }
+  ]);
+
+  // Convert aggregation result to a map for easy lookup
+  const balanceMap = new Map();
+  transactions.forEach(tx => {
+    balanceMap.set(tx._id.toString(), {
+      inflow: tx.inflow,
+      outflow: tx.outflow
+    });
+  });
+
+  // Prepare result and update storage balances
+  const result = await Promise.all(
+    storages.map(async (storage) => {
+      const storageId = storage._id.toString();
+      const balances = balanceMap.get(storageId) || { inflow: 0, outflow: 0 };
+      const openingBalance = storage.openingBalance || 0;
+      const currentBalance = openingBalance + balances.inflow - balances.outflow;
+
+      // Update storage's current balance if it's different
+      if (storage.currentBalance !== currentBalance) {
+        await Storage.findByIdAndUpdate(
+          storage._id,
+          { CurrentBalance: currentBalance },
+          { new: true }
+        );
+      }
+
+      return {
+        ...storage.toObject(),
+        currentBalance,
+        inflow: balances.inflow,
+        outflow: balances.outflow,
+        openingBalance,
+        companyId: storage.companyId 
+      };
+    })
+  );
 
   return {
     meta,
-    result,
+    result
   };
 };
 

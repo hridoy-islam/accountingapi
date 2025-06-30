@@ -4,15 +4,16 @@ import { TStorage } from './storage.interface';
 
 
 const storageSchema = new Schema({
-  storageName: { type: String, required: true },
+  storageName: { type: String, required: true, unique: true,  },
   openingBalance: { type: Number, required: true, default: 0 },
+  currentBalance: { type: Number, required: true, default: 0 },
   openingDate: { type: Date, required: true },
   logo: { type: String, default: null },
   status: { type: Boolean, required: true, default: true },
   auditStatus: { type: Boolean, required: true, default: true },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Company"
+    ref: "User"
   },
 });
 

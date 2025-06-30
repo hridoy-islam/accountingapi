@@ -50,7 +50,7 @@ const getCompanyReportFromDB = async (
   startDate?: string,
   endDate?: string
 ) => {
-  const baseFilter: any = { companyId };
+  const baseFilter: any = { companyId, isDeleted: false };
 
   // Handle date ranges
   if (startDate && endDate) {
