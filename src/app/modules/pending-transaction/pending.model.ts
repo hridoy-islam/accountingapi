@@ -13,7 +13,6 @@ const pendingTransactionSchema = new Schema<TPendingTransaction>(
     invoiceNumber: {
       type: String,
       required: true,
-      unique: true,
     },
     description: {
       type: String
