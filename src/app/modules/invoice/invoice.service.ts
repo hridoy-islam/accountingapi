@@ -27,7 +27,7 @@ const generateUniqueInvId = async (): Promise<string> => {
     increment = lastIncrement + 1;
   }
 
-  const incrementStr = increment.toString().padStart(4, "0");
+  const incrementStr = increment.toString().padStart(3, "0");
   return `${dateStr}${incrementStr}`;
 };
 
