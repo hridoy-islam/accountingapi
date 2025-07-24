@@ -16,7 +16,7 @@ const generateUniqueInvId = async (): Promise<string> => {
   const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
 
   // Find the latest invoice with today's date
-  const latestInvoice = await Invoice.findOne({ invId: { $regex: `${dateStr}` } })
+  const latestInvoice = await Invoice.findOne({ invId: { $regex: `^${dateStr}` } })
     .sort({ invId: -1 })
     .limit(1);
 
