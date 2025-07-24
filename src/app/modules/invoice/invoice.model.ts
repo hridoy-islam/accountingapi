@@ -48,7 +48,7 @@ const InvoiceSchema = new Schema<TInvoice>(
     bank:{
       type: Schema.Types.ObjectId,
       ref: "Bank",
-      required: true
+      
     },
 
     description: {

@@ -10,13 +10,13 @@ import moment from "moment";
 
 
 const generateUniqueInvId = async (): Promise<string> => {
-  const prefix = "INV";
+  // const prefix = "INV";
   const now = new Date();
 
   const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
 
   // Find the latest invoice with today's date
-  const latestInvoice = await Invoice.findOne({ invId: { $regex: `^${prefix}${dateStr}` } })
+  const latestInvoice = await Invoice.findOne({ invId: { $regex: `${dateStr}` } })
     .sort({ invId: -1 })
     .limit(1);
 
@@ -28,7 +28,7 @@ const generateUniqueInvId = async (): Promise<string> => {
   }
 
   const incrementStr = increment.toString().padStart(4, "0");
-  return `${prefix}${dateStr}${incrementStr}`;
+  return `${dateStr}${incrementStr}`;
 };
 
 
