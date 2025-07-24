@@ -31,7 +31,7 @@ const InvoiceSchema = new Schema<TInvoice>(
     invId: {
       type: String,
       required: true,
-      unique: true,
+      // unique: true,
     },
     customer: {
       type: Schema.Types.ObjectId,

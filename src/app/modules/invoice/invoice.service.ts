@@ -8,34 +8,63 @@ import { TInvoice } from "./invoice.interface";
 import Invoice from "./invoice.model";
 import moment from "moment";
 
+// const generateUniqueInvId = async (): Promise<string> => {
+//   // const prefix = "INV";
+//   const now = new Date();
 
-const generateUniqueInvId = async (): Promise<string> => {
-  // const prefix = "INV";
+//   const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
+
+//   // Find the latest invoice with today's date
+//   const latestInvoice = await Invoice.findOne({ invId: { $regex: `^${dateStr}` } })
+//     .sort({ invId: -1 })
+//     .limit(1);
+
+//   let increment = 1;
+//   if (latestInvoice) {
+//     const lastInvId = latestInvoice.invId;
+//     const lastIncrement = parseInt(lastInvId.slice(-4), 10);
+//     increment = lastIncrement + 1;
+//   }
+
+//   const incrementStr = increment.toString().padStart(3, "0");
+//   return `${dateStr}${incrementStr}`;
+// };
+
+const generateUniqueInvId = async (companyId: string): Promise<string> => {
   const now = new Date();
+  const dateStr = `${now.getFullYear()}${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
 
-  const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}`;
+  const prefix = dateStr;
+  let nextNumber = 1;
+  let invId = "";
+  let unique = false;
 
-  // Find the latest invoice with today's date
-  const latestInvoice = await Invoice.findOne({ invId: { $regex: `^${dateStr}` } })
-    .sort({ invId: -1 })
-    .limit(1);
+  while (!unique) {
+    const paddedNumber = String(nextNumber).padStart(3, "0");
+    invId = `${prefix}${paddedNumber}`;
 
-  let increment = 1;
-  if (latestInvoice) {
-    const lastInvId = latestInvoice.invId;
-    const lastIncrement = parseInt(lastInvId.slice(-4), 10);
-    increment = lastIncrement + 1;
+    // Check if this invId already exists for this company
+    const exists = await Invoice.findOne({
+      invId,
+      companyId, // Ensure it's company-specific
+    }).lean();
+
+    if (!exists) {
+      unique = true;
+    } else {
+      nextNumber++;
+    }
   }
 
-  const incrementStr = increment.toString().padStart(3, "0");
-  return `${dateStr}${incrementStr}`;
+  return invId;
 };
-
 
 // Creates a new Invoice in the database
 const createInvoiceIntoDB = async (payload: TInvoice) => {
   try {
-    const uniqueInvId = await generateUniqueInvId();
+    const uniqueInvId = await generateUniqueInvId(payload?.companyId);
     const result = await Invoice.create({ ...payload, invId: uniqueInvId });
     return result;
   } catch (error: any) {
@@ -45,10 +74,12 @@ const createInvoiceIntoDB = async (payload: TInvoice) => {
       throw error;
     }
 
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Invoice");
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Failed to create Invoice"
+    );
   }
 };
-
 
 // Deletes an Invoice from the database by ID
 const deleteInvoiceFromDB = async (id: string) => {
@@ -63,10 +94,17 @@ const deleteInvoiceFromDB = async (id: string) => {
     }
 
     // Soft delete (optional)
-    const result = await Invoice.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+    const result = await Invoice.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
 
     if (!result) {
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the Invoice");
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "Failed to delete the Invoice"
+      );
     }
 
     return result;
@@ -77,7 +115,10 @@ const deleteInvoiceFromDB = async (id: string) => {
       throw error;
     }
 
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to delete Invoice");
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to delete Invoice"
+    );
   }
 };
 
@@ -96,7 +137,6 @@ const updateInvoiceInDB = async (id: string, payload: Partial<TInvoice>) => {
 };
 
 const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
-
   const invoiceQuery = new QueryBuilder(Invoice.find(), query)
     .search(invoiceSearchableFields)
     .filter()
@@ -113,31 +153,37 @@ const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<string, unknown>) => {
+const getAllCompanyInvoicesFromDB = async (
+  companyId: string,
+  query: Record<string, unknown>
+) => {
   const { fromDate, toDate, searchTerm, ...otherQueryParams } = query;
 
-  const baseQuery: any = { 
+  const baseQuery: any = {
     companyId,
-    isDeleted: false 
+    isDeleted: false,
   };
 
   if (fromDate && toDate) {
     baseQuery.createdAt = {
-      $gte: moment(fromDate).startOf('day').toDate(),
-      $lte: moment(toDate).endOf('day').toDate()
+      $gte: moment(fromDate).startOf("day").toDate(),
+      $lte: moment(toDate).endOf("day").toDate(),
     };
   } else if (fromDate) {
     baseQuery.createdAt = {
-      $gte: moment(fromDate).startOf('day').toDate()
+      $gte: moment(fromDate).startOf("day").toDate(),
     };
   } else if (toDate) {
     baseQuery.createdAt = {
-      $lte: moment(toDate).endOf('day').toDate()
+      $lte: moment(toDate).endOf("day").toDate(),
     };
   }
 
   const invoiceQuery = new QueryBuilder(
-    Invoice.find(baseQuery).populate("companyId").populate("customer").populate("bank"),
+    Invoice.find(baseQuery)
+      .populate("companyId")
+      .populate("customer")
+      .populate("bank"),
     otherQueryParams
   );
 
@@ -145,20 +191,16 @@ const getAllCompanyInvoicesFromDB = async (companyId: string, query: Record<stri
   if (searchTerm) {
     const searchTermStr = searchTerm.toString();
     invoiceQuery.modelQuery = invoiceQuery.modelQuery.or([
-      { invoiceNumber: { $regex: searchTermStr, $options: 'i' } },
-      { invId: { $regex: searchTermStr, $options: 'i' } },
-      { details: { $regex: searchTermStr, $options: 'i' } },
-      { 'customer.name': { $regex: searchTermStr, $options: 'i' } },
-      { 'customer._id': searchTermStr }
+      { invoiceNumber: { $regex: searchTermStr, $options: "i" } },
+      { invId: { $regex: searchTermStr, $options: "i" } },
+      { details: { $regex: searchTermStr, $options: "i" } },
+      { "customer.name": { $regex: searchTermStr, $options: "i" } },
+      { "customer._id": searchTermStr },
     ]);
   }
 
   // Apply other QueryBuilder methods
-  const finalQuery = invoiceQuery
-    .filter()
-    .sort()
-    .paginate()
-    .fields();
+  const finalQuery = invoiceQuery.filter().sort().paginate().fields();
 
   // Get results
   const meta = await finalQuery.countTotal();
