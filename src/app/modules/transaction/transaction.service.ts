@@ -340,69 +340,154 @@ const getAllCompanyTransactionsFromDB = async (companyId:string, query: Record<s
 
 
 
+// const getYearlyCompanyTransactionsFromDB = async (
+//   companyId: string,
+//   query: { year: number }
+// ) => {
+//   const { year } = query;
+
+//   if (!year || isNaN(year)) {
+//     throw new Error("Invalid or missing year.");
+//   }
+
+//   const startOfYear = moment().year(year).startOf("year").toDate();
+//   const endOfYear = moment().year(year).endOf("year").toDate();
+
+//   const aggregationPipeline = [
+//   {
+//     $match: {
+//       companyId: new mongoose.Types.ObjectId(companyId),
+//       isDeleted: false,
+//       transactionDate: {
+//         $gte: startOfYear,
+//         $lte: endOfYear,
+//       },
+//     },
+//   },
+//   {
+//     $project: {
+//       transactionAmount: 1,
+//       transactionType: 1,
+//       month: { $month: "$transactionDate" },
+//     },
+//   },
+//   {
+//     $group: {
+//       _id: "$month",
+//       totalInflow: {
+//         $sum: {
+//           $cond: [
+//             { $eq: ["$transactionType", "inflow"] },
+//             "$transactionAmount",
+//             0,
+//           ],
+//         },
+//       },
+//       totalOutflow: {
+//         $sum: {
+//           $cond: [
+//             { $eq: ["$transactionType", "outflow"] },
+//             "$transactionAmount",
+//             0,
+//           ],
+//         },
+//       },
+//     },
+//   },
+//   {
+//     $sort: { _id: 1 },
+//   },
+// ];
+
+
+//   const monthlyTotals = await Transaction.aggregate(aggregationPipeline);
+
+//   // Fill in months with 0s if missing
+//   const fullYearData = Array.from({ length: 12 }, (_, i) => {
+//     const monthData = monthlyTotals.find((m) => m._id === i + 1);
+//     return {
+//       month: i + 1,
+//       totalInflow: monthData?.totalInflow || 0,
+//       totalOutflow: monthData?.totalOutflow || 0,
+//     };
+//   });
+
+//   return fullYearData;
+// };
+
+
+
 const getYearlyCompanyTransactionsFromDB = async (
   companyId: string,
   query: { year: number }
 ) => {
   const { year } = query;
-
+  
   if (!year || isNaN(year)) {
     throw new Error("Invalid or missing year.");
   }
-
+  
+  if (!mongoose.Types.ObjectId.isValid(companyId)) {
+    throw new Error("Invalid companyId.");
+  }
+  
   const startOfYear = moment().year(year).startOf("year").toDate();
   const endOfYear = moment().year(year).endOf("year").toDate();
-
+  
   const aggregationPipeline = [
-  {
-    $match: {
-      companyId: new mongoose.Types.ObjectId(companyId),
-      isDeleted: false,
-      transactionDate: {
-        $gte: startOfYear,
-        $lte: endOfYear,
-      },
-    },
-  },
-  {
-    $project: {
-      transactionAmount: 1,
-      transactionType: 1,
-      month: { $month: "$transactionDate" },
-    },
-  },
-  {
-    $group: {
-      _id: "$month",
-      totalInflow: {
-        $sum: {
-          $cond: [
-            { $eq: ["$transactionType", "inflow"] },
-            "$transactionAmount",
-            0,
-          ],
-        },
-      },
-      totalOutflow: {
-        $sum: {
-          $cond: [
-            { $eq: ["$transactionType", "outflow"] },
-            "$transactionAmount",
-            0,
-          ],
+    {
+      $match: {
+        companyId: new mongoose.Types.ObjectId(companyId),
+        isDeleted: false,
+        transactionDate: {
+          $gte: startOfYear,
+          $lte: endOfYear,
         },
       },
     },
-  },
-  {
-    $sort: { _id: 1 },
-  },
-];
-
-
-  const monthlyTotals = await Transaction.aggregate(aggregationPipeline);
-
-  // Fill in months with 0s if missing
+    {
+      $project: {
+        transactionType: 1,
+        month: { $month: "$transactionDate" },
+        // Convert string to number
+        transactionAmount: {
+          $toDouble: "$transactionAmount"
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$month",
+        totalInflow: {
+          $sum: {
+            $cond: [
+              { $eq: ["$transactionType", "inflow"] },
+              "$transactionAmount",
+              0,
+            ],
+          },
+        },
+        totalOutflow: {
+          $sum: {
+            $cond: [
+              { $eq: ["$transactionType", "outflow"] },
+              "$transactionAmount",
+              0,
+            ],
+          },
+        },
+      },
+    },
+    {
+      $sort: { _id: 1 },
+    },
+  ];
+  
+  const monthlyTotals = await Transaction.aggregate(aggregationPipeline, {
+    allowDiskUse: true,
+    maxTimeMS: 60000,
+  });
+  
   const fullYearData = Array.from({ length: 12 }, (_, i) => {
     const monthData = monthlyTotals.find((m) => m._id === i + 1);
     return {
@@ -411,10 +496,9 @@ const getYearlyCompanyTransactionsFromDB = async (
       totalOutflow: monthData?.totalOutflow || 0,
     };
   });
-
+  
   return fullYearData;
 };
-
 
 // Retrieves a single  Transaction from the database by ID
 const getOneTransactionFromDB = async (id: string) => {

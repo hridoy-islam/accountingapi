@@ -89,115 +89,206 @@ const getAllStoragesFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const getAllCompanyStoragesFromDB = async (
-  companyId: string,
-  query: Record<string, unknown>
-) => {
-  // Validate companyId
+// const getAllCompanyStoragesFromDB = async (
+//   companyId: string,
+//   query: Record<string, unknown>
+// ) => {
+//   // Validate companyId
+//   if (!mongoose.Types.ObjectId.isValid(companyId)) {
+//     throw new Error('Invalid company ID');
+//   }
+
+//   const companyObjectId = new mongoose.Types.ObjectId(companyId);
+
+//   // Create query for storages
+//   const userQuery = new QueryBuilder(
+//     Storage.find({ companyId: companyObjectId })
+//       .populate({
+//         path: 'companyId',
+//         select: 'name' 
+//       }),
+//     query
+//   )
+//     .search(storageSearchableFields)
+//     .filter(query)
+//     .sort()
+//     .paginate()
+//     .fields();
+
+//   const meta = await userQuery.countTotal();
+//   const storages = await userQuery.modelQuery;
+
+//   // If no storages found, return early
+//   if (storages.length === 0) {
+//     return {
+//       meta,
+//       result: []
+//     };
+//   }
+
+//   const storageIds = storages.map(storage => storage._id);
+
+//   // Fetch all transactions for these storages
+//   const transactions = await Transaction.aggregate([
+//     {
+//       $match: {
+//         storage: { $in: storageIds },
+//         companyId: companyObjectId,
+//         isDeleted: false
+//       }
+//     },
+//     {
+//       $group: {
+//         _id: '$storage',
+//         inflow: {
+//           $sum: {
+//             $cond: [{ $eq: ['$transactionType', 'inflow'] }, '$transactionAmount', 0]
+//           }
+//         },
+//         outflow: {
+//           $sum: {
+//             $cond: [{ $eq: ['$transactionType', 'outflow'] }, '$transactionAmount', 0]
+//           }
+//         }
+//       }
+//     }
+//   ]);
+
+//   // Convert aggregation result to a map for easy lookup
+//   const balanceMap = new Map();
+//   transactions.forEach(tx => {
+//     balanceMap.set(tx._id.toString(), {
+//       inflow: tx.inflow,
+//       outflow: tx.outflow
+//     });
+//   });
+
+//   // Prepare result and update storage balances
+//   const result = await Promise.all(
+//     storages.map(async (storage) => {
+//       const storageId = storage._id.toString();
+//       const balances = balanceMap.get(storageId) || { inflow: 0, outflow: 0 };
+//       const openingBalance = storage.openingBalance || 0;
+//       const currentBalance = openingBalance + balances.inflow - balances.outflow;
+
+//       // Update storage's current balance if it's different
+//       if (storage.currentBalance !== currentBalance) {
+//         await Storage.findByIdAndUpdate(
+//           storage._id,
+//           { CurrentBalance: currentBalance },
+//           { new: true }
+//         );
+//       }
+
+//       return {
+//         ...storage.toObject(),
+//         currentBalance,
+//         inflow: balances.inflow,
+//         outflow: balances.outflow,
+//         openingBalance,
+//         companyId: storage.companyId 
+//       };
+//     })
+//   );
+
+//   return {
+//     meta,
+//     result
+//   };
+// };
+
+// Retrieves a single transaction Storage from the database by ID
+
+
+const getAllCompanyStoragesFromDB = async (companyId: string) => {
   if (!mongoose.Types.ObjectId.isValid(companyId)) {
     throw new Error('Invalid company ID');
   }
 
   const companyObjectId = new mongoose.Types.ObjectId(companyId);
+  const storages = await Storage.find({ companyId: companyObjectId }).lean();
+  if (!storages.length) return { result: [] };
 
-  // Create query for storages
-  const userQuery = new QueryBuilder(
-    Storage.find({ companyId: companyObjectId })
-      .populate({
-        path: 'companyId',
-        select: 'name' 
-      }),
-    query
-  )
-    .search(storageSearchableFields)
-    .filter(query)
-    .sort()
-    .paginate()
-    .fields();
+  const storageIds = storages.map(s => s._id);
 
-  const meta = await userQuery.countTotal();
-  const storages = await userQuery.modelQuery;
+  // Debug log
+  // console.log(` companyId: ${companyObjectId}, storageCount: ${storageIds.length}`);
 
-  // If no storages found, return early
-  if (storages.length === 0) {
-    return {
-      meta,
-      result: []
-    };
-  }
-
-  const storageIds = storages.map(storage => storage._id);
-
-  // Fetch all transactions for these storages
-  const transactions = await Transaction.aggregate([
+  const pipeline = [
     {
       $match: {
         storage: { $in: storageIds },
         companyId: companyObjectId,
-        isDeleted: false
+        $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }]
       }
     },
-    {
-      $group: {
-        _id: '$storage',
-        inflow: {
-          $sum: {
-            $cond: [{ $eq: ['$transactionType', 'inflow'] }, '$transactionAmount', 0]
-          }
-        },
-        outflow: {
-          $sum: {
-            $cond: [{ $eq: ['$transactionType', 'outflow'] }, '$transactionAmount', 0]
-          }
-        }
+   {
+  $group: {
+    _id: '$storage',
+    inflow: {
+      $sum: {
+        $cond: [
+          {
+            $and: [
+              { $eq: [{ $toLower: { $toString: '$transactionType' } }, 'inflow'] },
+             
+            ]
+          },
+          { $toDouble: '$transactionAmount' }, // ✅ Safely convert to number
+          0
+        ]
+      }
+    },
+    outflow: {
+      $sum: {
+        $cond: [
+          {
+            $and: [
+              { $eq: [{ $toLower: { $toString: '$transactionType' } }, 'outflow'] },
+              { $ne: [{ $type: '$transactionAmount' }, 'string'] }
+            ]
+          },
+          { $toDouble: '$transactionAmount' }, // ✅
+          0
+        ]
       }
     }
-  ]);
+  }
+}
+  ];
 
-  // Convert aggregation result to a map for easy lookup
   const balanceMap = new Map();
-  transactions.forEach(tx => {
-    balanceMap.set(tx._id.toString(), {
-      inflow: tx.inflow,
-      outflow: tx.outflow
-    });
+  const cursor = Transaction.aggregate(pipeline).allowDiskUse(true).cursor({ batchSize: 1000 });
+
+ for await (const doc of cursor) {
+  // console.log('🔍 Aggregation doc:', JSON.stringify(doc, null, 2));
+  balanceMap.set(doc._id.toString(), {
+    inflow: typeof doc.inflow === 'number' ? doc.inflow : 0,
+    outflow: typeof doc.outflow === 'number' ? doc.outflow : 0,
+  });
+}
+
+  // console.log(`📊 Balance map size: ${balanceMap.size}`);
+
+  const result = storages.map(storage => {
+    const id = storage._id.toString();
+    const { inflow = 0, outflow = 0 } = balanceMap.get(id) || {};
+    const openingBalance = storage.openingBalance || 0;
+    return {
+      ...storage,
+      openingBalance,
+      inflow,
+      outflow,
+      currentBalance: openingBalance + inflow - outflow
+    };
   });
 
-  // Prepare result and update storage balances
-  const result = await Promise.all(
-    storages.map(async (storage) => {
-      const storageId = storage._id.toString();
-      const balances = balanceMap.get(storageId) || { inflow: 0, outflow: 0 };
-      const openingBalance = storage.openingBalance || 0;
-      const currentBalance = openingBalance + balances.inflow - balances.outflow;
-
-      // Update storage's current balance if it's different
-      if (storage.currentBalance !== currentBalance) {
-        await Storage.findByIdAndUpdate(
-          storage._id,
-          { CurrentBalance: currentBalance },
-          { new: true }
-        );
-      }
-
-      return {
-        ...storage.toObject(),
-        currentBalance,
-        inflow: balances.inflow,
-        outflow: balances.outflow,
-        openingBalance,
-        companyId: storage.companyId 
-      };
-    })
-  );
-
-  return {
-    meta,
-    result
-  };
+  return { result };
 };
 
-// Retrieves a single transaction Storage from the database by ID
+
+
+
 const getOneStorageFromDB = async (id: string) => {
   const result = await Storage.findById(id);
   return result;
