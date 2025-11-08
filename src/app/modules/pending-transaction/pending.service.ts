@@ -122,7 +122,7 @@ const getAllPendingTransactionsFromDB = async (query: Record<string, unknown>) =
 
   const PendingTransactionQuery = new QueryBuilder(PendingTransaction.find(), query)
     .search(pendingTransactionSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -178,7 +178,7 @@ const getAllCompanyPendingTransactionsFromDB = async (companyId: string, query: 
 
   // Apply other QueryBuilder methods
   const finalQuery = PendingTransactionQuery
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

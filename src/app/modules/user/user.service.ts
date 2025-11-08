@@ -10,7 +10,7 @@ import config from "../../config";
 const getAllUserFromDB = async (query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(User.find().populate('createdBy'), query)
     .search(UserSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -48,7 +48,7 @@ const getAllCompanyUserFromDB = async (companyId:string, query: Record<string, u
 
   const userQuery = new QueryBuilder(User.find({companyId}).populate('createdBy companyId'), query)
     .search(UserSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

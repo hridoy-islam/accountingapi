@@ -80,7 +80,7 @@ const getAllCSVsFromDB = async (query: Record<string, unknown>) => {
 
   const CSVQuery = new QueryBuilder(CSV.find(), query)
     .search(csvSarchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -139,7 +139,7 @@ const getAllCompanyCSVsFromDB = async (companyId: string, query: Record<string, 
 
   // Apply other QueryBuilder methods
   const finalQuery = CSVQuery
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

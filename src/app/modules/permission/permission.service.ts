@@ -87,7 +87,7 @@ const getPermissionsFromDB = async (
     Permission.find(baseFilter),
     query
   )
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

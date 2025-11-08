@@ -64,7 +64,7 @@ const generateUniqueInvId = async (companyId: string): Promise<string> => {
 // Creates a new Invoice in the database
 const createInvoiceIntoDB = async (payload: TInvoice) => {
   try {
-    const uniqueInvId = await generateUniqueInvId(payload?.companyId);
+    const uniqueInvId = await generateUniqueInvId((payload as any)?.companyId);
     const result = await Invoice.create({ ...payload, invId: uniqueInvId });
     return result;
   } catch (error: any) {
@@ -139,7 +139,7 @@ const updateInvoiceInDB = async (id: string, payload: Partial<TInvoice>) => {
 const getAllInvoicesFromDB = async (query: Record<string, unknown>) => {
   const invoiceQuery = new QueryBuilder(Invoice.find(), query)
     .search(invoiceSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -200,7 +200,7 @@ const getAllCompanyInvoicesFromDB = async (
   }
 
   // Apply other QueryBuilder methods
-  const finalQuery = invoiceQuery.filter().sort().paginate().fields();
+  const finalQuery = invoiceQuery.filter(query).sort().paginate().fields();
 
   // Get results
   const meta = await finalQuery.countTotal();

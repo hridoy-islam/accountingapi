@@ -79,7 +79,7 @@ const updateMethodInDB = async (id: string, payload: Partial<TMethod>) => {
 const getAllMethodsFromDB = async (query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(Method.find(), query)
     .search(transactionMethodSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -98,7 +98,7 @@ const getAllMethodsFromDB = async (query: Record<string, unknown>) => {
 const getAllCompanyMethodsFromDB = async (companyId:string,query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(Method.find({companyId}).populate("companyId"), query)
     .search(transactionMethodSearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

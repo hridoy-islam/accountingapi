@@ -79,7 +79,7 @@ const updateCategoryInDB = async (id: string, payload: Partial<TCategory>) => {
 const getAllCategorysFromDB = async (query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(Category.find(), query)
     .search(categorySearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();
@@ -96,7 +96,7 @@ const getAllCategorysFromDB = async (query: Record<string, unknown>) => {
 const getAllComapanyCategorysFromDB = async (companyId:string,query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(Category.find({companyId}).populate("companyId"), query)
     .search(categorySearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

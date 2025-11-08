@@ -86,7 +86,7 @@ const getAllCompanysFromDB = async (query: Record<string, unknown>) => {
   }
   const userQuery = new QueryBuilder(Company.find().populate('createdBy assignUser'), query)
     .search(companySearchableFields)
-    .filter()
+    .filter(query)
     .sort()
     .paginate()
     .fields();

@@ -28,7 +28,7 @@ const generateUniqueTcid = async (): Promise<string> => {
 
   let increment = 1;
   if (latestTransaction) {
-    const lastTcid = latestTransaction.tcid;
+    const lastTcid = (latestTransaction as any)?.tcid;
     const lastIncrement = parseInt(lastTcid.slice(-4), 10);
     increment = lastIncrement + 1;
   }
@@ -419,7 +419,7 @@ const getAllCompanyTransactionsFromDB = async (companyId:string, query: Record<s
 
 const getYearlyCompanyTransactionsFromDB = async (
   companyId: string,
-  query: { year: number }
+  query: any
 ) => {
   const { year } = query;
   
@@ -483,7 +483,7 @@ const getYearlyCompanyTransactionsFromDB = async (
     },
   ];
   
-  const monthlyTotals = await Transaction.aggregate(aggregationPipeline, {
+  const monthlyTotals = await Transaction.aggregate(aggregationPipeline as any, {
     allowDiskUse: true,
     maxTimeMS: 60000,
   });
