@@ -8,6 +8,8 @@ const customerSchema = new Schema<TBank>({
   beneficiary: { type: String },
   companyId: { type: Schema.Types.ObjectId, ref: "User", required: true },
  
+},{
+  timestamps:true
 });
 
 const Bank = mongoose.model<TBank>("Bank", customerSchema);

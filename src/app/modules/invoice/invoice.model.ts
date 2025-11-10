@@ -41,7 +41,9 @@ const InvoiceSchema = new Schema<TInvoice>(
     invoiceDate: {
       type: Date,
     },
-  
+    dueDate: {
+      type: Date,
+    },
     invoiceNumber: {
       type: String,
     },

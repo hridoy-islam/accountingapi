@@ -12,6 +12,7 @@ export interface TInvoice {
   invId: string;
   customer: Types.ObjectId;
   invoiceDate: Date | string;
+  dueDate: Date | string;
   invoiceNumber: string;
   bank: Types.ObjectId;
   description?: string;
