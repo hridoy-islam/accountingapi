@@ -62,7 +62,7 @@ const getOneStorage = catchAsync(async (req, res) => {
   })
 const getCompanyStorage = catchAsync(async (req, res) => {
   const { id } = req.params;
-    const result = await StorageServices.getAllCompanyStoragesFromDB(id);
+    const result = await StorageServices.getCompanyAllStoragesFromDB(id);
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,

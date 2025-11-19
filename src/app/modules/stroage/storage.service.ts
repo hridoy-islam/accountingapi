@@ -200,93 +200,94 @@ const getAllStoragesFromDB = async (query: Record<string, unknown>) => {
 // Retrieves a single transaction Storage from the database by ID
 
 
-const getAllCompanyStoragesFromDB = async (companyId: string) => {
+
+const getCompanyAllStoragesFromDB = async (companyId: string) => {
   if (!mongoose.Types.ObjectId.isValid(companyId)) {
     throw new Error('Invalid company ID');
   }
 
   const companyObjectId = new mongoose.Types.ObjectId(companyId);
+
+  // 1. Fetch Storages (Lightweight)
   const storages = await Storage.find({ companyId: companyObjectId }).lean();
   if (!storages.length) return { result: [] };
 
-  const storageIds = storages.map(s => s._id);
-
-  // Debug log
-  // console.log(` companyId: ${companyObjectId}, storageCount: ${storageIds.length}`);
+  // 🚀 OPTIMIZATION 1: Prepare Hybrid IDs for Index-based Matching
+  // We create a list containing BOTH the ObjectId and String versions of every storage ID.
+  // This allows the database to find records instantly regardless of how they were saved.
+  const targetStorageIds = storages.flatMap(s => [
+    s._id,                    // As ObjectId
+    s._id.toString()          // As String
+  ]);
 
   const pipeline = [
     {
+      // 🚀 OPTIMIZATION 2: Strict Filtering
+      // By filtering 'storage' here using $in, we drastically reduce the data volume
+      // before doing any calculations.
       $match: {
-        storage: { $in: storageIds },
         companyId: companyObjectId,
-        $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }]
-      }
-    },
-   {
-  $group: {
-    _id: '$storage',
-    inflow: {
-      $sum: {
-        $cond: [
-          {
-            $and: [
-              { $eq: [{ $toLower: { $toString: '$transactionType' } }, 'inflow'] },
-             
-            ]
-          },
-          { $toDouble: '$transactionAmount' }, // ✅ Safely convert to number
-          0
+        storage: { $in: targetStorageIds }, 
+        $or: [
+          { isDeleted: false },
+          { isDeleted: null },
+          { isDeleted: { $exists: false } }
         ]
       }
     },
-    outflow: {
-      $sum: {
-        $cond: [
-          {
-            $and: [
-              { $eq: [{ $toLower: { $toString: '$transactionType' } }, 'outflow'] },
-              { $ne: [{ $type: '$transactionAmount' }, 'string'] }
+    {
+      $group: {
+        // 🚀 OPTIMIZATION 3: Merge Mixed Types
+        // Grouping by $toString ensures that ObjectId('123') and "123" 
+        // end up in the exact same bucket.
+        _id: { $toString: '$storage' },
+        inflow: {
+          $sum: {
+            $cond: [
+              { $eq: [{ $toLower: '$transactionType' }, 'inflow'] },
+              { $toDouble: '$transactionAmount' }, // Safe convert for math
+              0
             ]
-          },
-          { $toDouble: '$transactionAmount' }, // ✅
-          0
-        ]
+          }
+        },
+        outflow: {
+          $sum: {
+            $cond: [
+              { $eq: [{ $toLower: '$transactionType' }, 'outflow'] },
+              { $toDouble: '$transactionAmount' }, // Safe convert for math
+              0
+            ]
+          }
+        }
       }
     }
-  }
-}
   ];
 
+  const balances = await Transaction.aggregate(pipeline);
+
+  // 3. Create Map for O(1) lookup
   const balanceMap = new Map();
-  const cursor = Transaction.aggregate(pipeline).allowDiskUse(true).cursor({ batchSize: 1000 });
-
- for await (const doc of cursor) {
-  // console.log('🔍 Aggregation doc:', JSON.stringify(doc, null, 2));
-  balanceMap.set(doc._id.toString(), {
-    inflow: typeof doc.inflow === 'number' ? doc.inflow : 0,
-    outflow: typeof doc.outflow === 'number' ? doc.outflow : 0,
+  balances.forEach(b => {
+    balanceMap.set(b._id, b);
   });
-}
 
-  // console.log(`📊 Balance map size: ${balanceMap.size}`);
-
+  // 4. Calculate Final Results
   const result = storages.map(storage => {
-    const id = storage._id.toString();
-    const { inflow = 0, outflow = 0 } = balanceMap.get(id) || {};
+    const sId = storage._id.toString();
+    const data = balanceMap.get(sId) || { inflow: 0, outflow: 0 };
     const openingBalance = storage.openingBalance || 0;
+
     return {
       ...storage,
       openingBalance,
-      inflow,
-      outflow,
-      currentBalance: openingBalance + inflow - outflow
+      inflow: data.inflow,
+      outflow: data.outflow,
+      currentBalance: openingBalance + data.inflow - data.outflow
     };
   });
 
   return { result };
 };
-
-
 
 
 const getOneStorageFromDB = async (id: string) => {
@@ -300,5 +301,5 @@ export const StorageServices = {
   updateStorageInDB,
   getAllStoragesFromDB,
   getOneStorageFromDB,
-  getAllCompanyStoragesFromDB
+  getCompanyAllStoragesFromDB
 };
