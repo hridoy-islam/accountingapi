@@ -30,4 +30,8 @@ export interface TInvoice {
   subtotal: number;
   discountType?: "percentage" | "flat";
   total: number;
+   partialPayment: number;
+  partialPaymentType: "percentage" | "flat";
+  balanceDue: number;
+  topNote?: string;
 }

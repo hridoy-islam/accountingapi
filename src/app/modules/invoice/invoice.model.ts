@@ -120,7 +120,24 @@ const InvoiceSchema = new Schema<TInvoice>(
     total:{
       type: Number,
       default: 0
-    }
+    },
+    partialPayment: {
+      type: Number,
+      default: 0
+    },
+    partialPaymentType: {
+      type: String,
+      enum: ["percentage", "flat"],
+      default: "flat",
+    },
+    balanceDue: {
+      type: Number,
+      default: 0
+    },
+    topNote: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
