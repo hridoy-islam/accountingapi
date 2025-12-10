@@ -7,6 +7,7 @@ import { invoiceSearchableFields } from "./invoice.constant";
 import { TInvoice } from "./invoice.interface";
 import Invoice from "./invoice.model";
 import moment from "moment";
+import ScheduleInvoice from "../scheduleInvoice/scheduleInvoice.model";
 
 // const generateUniqueInvId = async (): Promise<string> => {
 //   // const prefix = "INV";
@@ -29,6 +30,72 @@ import moment from "moment";
 //   const incrementStr = increment.toString().padStart(3, "0");
 //   return `${dateStr}${incrementStr}`;
 // };
+
+
+const handleRecurringSchedule = async (invoice: any) => {
+  if (!invoice?.isRecurring) return;
+
+  const payload = {
+    invId: invoice.invId,
+    invoiceId: invoice._id,
+    customer: invoice.customer,
+    invoiceDate: invoice.invoiceDate,
+    dueDate: invoice.dueDate,
+    invoiceNumber: invoice.invoiceNumber,
+    bank: invoice.bank,
+    description: invoice.description,
+    status: invoice.status,
+    transactionType: invoice.transactionType,
+    amount: invoice.amount,
+    companyId: invoice.companyId,
+    invDoc: invoice.invDoc,
+    notes: invoice.notes,
+    termsAndConditions: invoice.termsAndConditions,
+    items: invoice.items,
+    tax: invoice.tax,
+    discount: invoice.discount,
+    subtotal: invoice.subtotal,
+    discountType: invoice.discountType,
+    total: invoice.total,
+    partialPayment: invoice.partialPayment,
+    partialPaymentType: invoice.partialPaymentType,
+    balanceDue: invoice.balanceDue,
+    topNote: invoice.topNote,
+    isRecurring: invoice.isRecurring,
+    frequency: invoice.frequency,
+    frequencyDueDate: invoice.frequencyDueDate,
+    scheduledMonth: invoice.scheduledMonth,
+    scheduledDay: invoice.scheduledDay,
+    lastRunDate: invoice.lastRunDate,
+  };
+
+  const exists = await ScheduleInvoice.findOne({
+    invId: invoice.invId,
+    invoiceId: invoice._id,
+  });
+
+  if (exists) {
+    // 🔄 UPDATE EXISTING
+    await ScheduleInvoice.updateOne(
+      { _id: exists._id },
+      { $set: payload }
+    );
+
+    return {
+      success: true,
+      message: "Schedule invoice updated successfully!",
+    };
+  }
+
+  // 🆕 CREATE NEW
+  await ScheduleInvoice.create(payload);
+
+  return {
+    success: true,
+    message: "Schedule invoice created successfully!",
+  };
+};
+
 
 const generateUniqueInvId = async (companyId: string): Promise<string> => {
   const now = new Date();
@@ -66,6 +133,8 @@ const createInvoiceIntoDB = async (payload: TInvoice) => {
   try {
     const uniqueInvId = await generateUniqueInvId((payload as any)?.companyId);
     const result = await Invoice.create({ ...payload, invId: uniqueInvId });
+    await handleRecurringSchedule(result);
+
     return result;
   } catch (error: any) {
     console.error("Error in createInvoiceIntoDB:", error);
@@ -132,6 +201,9 @@ const updateInvoiceInDB = async (id: string, payload: Partial<TInvoice>) => {
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, "Invoice not found!");
   }
+
+  await handleRecurringSchedule(result);
+
 
   return result;
 };

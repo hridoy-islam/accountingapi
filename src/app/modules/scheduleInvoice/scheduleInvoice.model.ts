@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { TInvoice } from "./invoice.interface";
+import { TScheduleInvoice } from "./scheduleInvoice.interface";
 
 // Define the sub-schema for invoice items
 const InvoiceItemSchema = new Schema(
@@ -21,18 +21,20 @@ const InvoiceItemSchema = new Schema(
       required: true,
     },
 
-
-
   }
 );
 
-const InvoiceSchema = new Schema<TInvoice>(
+const ScheduleInvoiceSchema = new Schema<TScheduleInvoice>(
   {
     invId: {
       type: String,
-      required: true,
-      // unique: true,
+      
     },
+    invoiceId: {
+      type: Schema.Types.ObjectId,
+      ref: "Invoice",
+    },
+    
     customer: {
       type: Schema.Types.ObjectId,
       ref: "Customer",
@@ -138,13 +140,14 @@ const InvoiceSchema = new Schema<TInvoice>(
       type: String,
       default: "",
     },
-    isRecurring: {
+    isRecurring:{
       type: Boolean,
-      default: false
+      default: false,
     },
+    
     frequency: {
       type: String,
-      enum: ["monthly", "yearly"],
+      enum: ["weekly", "monthly", "yearly"],
 
     },
     frequencyDueDate:{
@@ -167,6 +170,6 @@ const InvoiceSchema = new Schema<TInvoice>(
   }
 );
 
-const Invoice = mongoose.model<TInvoice>("Invoice", InvoiceSchema);
+const ScheduleInvoice = mongoose.model<TScheduleInvoice>("ScheduleInvoice", ScheduleInvoiceSchema);
 
-export default Invoice;
+export default ScheduleInvoice;

@@ -14,6 +14,7 @@ import { CSVRouter } from "../modules/csv/csv.route";
 import { UploadDocumentRoutes } from "../modules/documents/documents.route";
 import { PermissionRoutes } from "../modules/permission/permission.route";
 import { BankRoutes } from "../modules/bank/bank.route";
+import { ScheduleInvoiceRouter } from "../modules/scheduleInvoice/scheduleInvoice.route";
 
 const router = Router();
 
@@ -82,6 +83,10 @@ const moduleRoutes = [
   {
     path: '/bank',
     route: BankRoutes
+  },
+  {
+    path: '/schedule-invoice',
+    route: ScheduleInvoiceRouter
   }
 ];
 

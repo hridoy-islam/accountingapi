@@ -8,8 +8,10 @@ export interface InvoiceItem {
 
 }
 
-export interface TInvoice {
+export interface TScheduleInvoice {
+  invoiceId: Types.ObjectId;
   invId: string;
+
   customer: Types.ObjectId;
   invoiceDate: Date | string;
   dueDate: Date | string;
@@ -30,14 +32,17 @@ export interface TInvoice {
   subtotal: number;
   discountType?: "percentage" | "flat";
   total: number;
-   partialPayment: number;
+  partialPayment: number;
   partialPaymentType: "percentage" | "flat";
   balanceDue: number;
   topNote?: string;
+
   isRecurring: boolean;
-  frequency: "weekly" | "monthly" | "yearly";
+  frequency:  "monthly" | "yearly";
   frequencyDueDate:Number;
   scheduledMonth:Number;
   scheduledDay:Number;
   lastRunDate: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
