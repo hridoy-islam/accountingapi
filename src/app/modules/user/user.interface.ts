@@ -22,6 +22,11 @@ export interface TUser extends Document {
   sortCode: string;
  accountNo: string;
  beneficiary:string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  postCode?: string;
+  country?: string;
   refreshToken: String,
    
   

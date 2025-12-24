@@ -8,23 +8,38 @@ import { TCustomer } from "./customer.interface";
 import Customer from "./customer.model";
 
 
-
 const createCustomerIntoDB = async (payload: TCustomer) => {
   try {
-    
+    const existingCustomer = await Customer.findOne({
+      email: payload.email,
+      companyId: payload.companyId,
+    });
+
+    if (existingCustomer) {
+      throw new AppError(
+        httpStatus.CONFLICT,
+        "Customer already exists for this company"
+      );
+    }
+
     const result = await Customer.create(payload);
     return result;
+
   } catch (error: any) {
     console.error("Error in createCustomerIntoDB:", error);
 
-    // Throw the original error or wrap it with additional context
     if (error instanceof AppError) {
       throw error;
     }
 
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, error.message || "Failed to create Customer");
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      error.message || "Failed to create Customer"
+    );
   }
 };
+
+
 
 const getAllCustomerFromDB = async (query: Record<string, unknown>) => {
   const CustomerQuery = new QueryBuilder(Customer.find(), query)

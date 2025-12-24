@@ -10,4 +10,9 @@ export interface TCustomer {
   accountNo: string;
   sortCode: string;
   beneficiary: string;
+   address2?: string;
+  city?: string;
+  state?: string;
+  postCode?: string;
+  country?: string;
 }

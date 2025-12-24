@@ -12,6 +12,11 @@ const customerSchema = new Schema<TCustomer>({
   accountNo: { type: String, required: true },
   sortCode: { type: String, required: true },
   beneficiary: { type: String },
+  address2:{type: String},
+    city:{type: String},
+    postCode:{type: String},
+    country:{type: String},
+    state:{type: String},
 }, {
   timestamps: true
 });

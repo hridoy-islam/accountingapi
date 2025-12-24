@@ -70,6 +70,12 @@ const userSchema = new Schema<TUser, UserModel>(
       type: String,
       default:"#a78bfa"
     },
+    address2:{type: String},
+    city:{type: String},
+    postCode:{type: String},
+    country:{type: String},
+    state:{type: String},
+
     sortCode: { type: String },
     accountNo: { type: String },
     beneficiary: { type: String },
